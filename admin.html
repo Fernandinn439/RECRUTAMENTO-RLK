@@ -1,0 +1,172 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RLK | Painel Administrativo</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0b0e;color:#fff;font-family:Arial,sans-serif;padding:25px}
+main{max-width:950px;margin:35px auto}
+h1{color:#f0182d}
+.card{background:#17171d;border:1px solid #333;border-radius:12px;padding:20px;margin:15px 0}
+input{display:block;width:100%;padding:13px;margin:12px 0;background:#09090c;color:white;border:1px solid #444;border-radius:7px}
+button{padding:11px 16px;border:0;border-radius:7px;cursor:pointer;font-weight:bold;margin:5px}
+.primary{background:#e71930;color:white}
+.approve{background:#167c45;color:white}
+.reject{background:#a91d2d;color:white}
+.muted{color:#aaa}
+.hidden{display:none}
+.player{border-bottom:1px solid #333;padding:15px 0}
+.player:last-child{border:0}
+</style>
+</head>
+<body>
+<main>
+<h1>RLK | ADMINISTRAÇÃO</h1>
+<p class="muted">Painel privado de recrutamento</p>
+
+<section class="card" id="login">
+<h2>Entrar como administrador</h2>
+<input id="email" type="email" placeholder="Seu e-mail" autocomplete="username">
+<input id="password" type="password" placeholder="Sua senha" autocomplete="current-password">
+<button class="primary" id="loginBtn">ENTRAR</button>
+<p id="message" class="muted"></p>
+</section>
+
+<section id="dashboard" class="hidden">
+<div class="card">
+<h2>Inscrições recebidas</h2>
+<h1 id="total">0 jogadores</h1>
+<button class="primary" id="refreshBtn">ATUALIZAR LISTA</button>
+<button id="logoutBtn">SAIR</button>
+</div>
+<div class="card">
+<div id="players">Carregando...</div>
+</div>
+</section>
+</main>
+
+<script>
+const client = window.supabase.createClient(
+  "https://pcabchaqmqllfvvvudbl.supabase.co",
+  "sb_publishable_THm0a3RUx5Y3oxX303HRbg_JZc7K4aS"
+);
+
+const loginBox = document.getElementById("login");
+const dashboard = document.getElementById("dashboard");
+const message = document.getElementById("message");
+const players = document.getElementById("players");
+
+async function loadPlayers(){
+  players.textContent = "Carregando inscrições...";
+
+  const {data,error} = await client
+    .from("inscricoes_rlk")
+    .select("*")
+    .order("criado_em",{ascending:false});
+
+  if(error){
+    players.textContent = "Erro ao carregar: " + error.message;
+    return;
+  }
+
+  document.getElementById("total").textContent =
+    data.length + " jogadores";
+
+  players.replaceChildren();
+
+  if(data.length === 0){
+    players.textContent = "Nenhuma inscrição encontrada.";
+    return;
+  }
+
+  data.forEach(p=>{
+    const card = document.createElement("div");
+    card.className = "player";
+
+    const title = document.createElement("h3");
+    title.textContent = p.nick || "Sem nick";
+
+    const details = document.createElement("p");
+    details.textContent =
+      "ID: " + p.jogador_id +
+      " | Idade: " + p.idade +
+      " | Cidade: " + (p.cidade || "Não informada") +
+      " | Função: " + (p.funcao || "Não informada");
+
+    const motivation = document.createElement("p");
+    motivation.textContent = "Motivação: " + (p.motivacao || "Não informada");
+
+    const status = document.createElement("p");
+    status.textContent = "Status: " + p.status;
+
+    const approve = document.createElement("button");
+    approve.className = "approve";
+    approve.textContent = "APROVAR";
+    approve.onclick = ()=>changeStatus(p.id,"Aprovado");
+
+    const reject = document.createElement("button");
+    reject.className = "reject";
+    reject.textContent = "REPROVAR";
+    reject.onclick = ()=>changeStatus(p.id,"Reprovado");
+
+    card.append(title,details,motivation,status,approve,reject);
+    players.appendChild(card);
+  });
+}
+
+async function changeStatus(id,status){
+  const {error} = await client
+    .from("inscricoes_rlk")
+    .update({status})
+    .eq("id",id);
+
+  if(error){
+    alert("Erro ao alterar status: " + error.message);
+    return;
+  }
+
+  loadPlayers();
+}
+
+document.getElementById("loginBtn").onclick = async ()=>{
+  message.textContent = "Verificando acesso...";
+
+  const {error} = await client.auth.signInWithPassword({
+    email:document.getElementById("email").value,
+    password:document.getElementById("password").value
+  });
+
+  if(error){
+    message.textContent = "Não foi possível entrar. Confira e-mail e senha.";
+    return;
+  }
+
+  loginBox.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  loadPlayers();
+};
+
+document.getElementById("refreshBtn").onclick = loadPlayers;
+
+document.getElementById("logoutBtn").onclick = async ()=>{
+  await client.auth.signOut();
+  dashboard.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+  document.getElementById("password").value = "";
+  message.textContent = "Você saiu do painel.";
+};
+
+client.auth.getSession().then(({data})=>{
+  if(data.session){
+    loginBox.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+    loadPlayers();
+  }
+});
+</script>
+</body>
+</html>
