@@ -6,46 +6,206 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RLK | Painel Administrativo</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#0b0b0e;color:#fff;font-family:Arial,sans-serif;padding:25px}
-main{max-width:950px;margin:35px auto}
-h1{color:#f0182d}
-.card{background:#17171d;border:1px solid #333;border-radius:12px;padding:20px;margin:15px 0}
-input{display:block;width:100%;padding:13px;margin:12px 0;background:#09090c;color:white;border:1px solid #444;border-radius:7px}
-button{padding:11px 16px;border:0;border-radius:7px;cursor:pointer;font-weight:bold;margin:5px}
-.primary{background:#e71930;color:white}
-.approve{background:#167c45;color:white}
-.reject{background:#a91d2d;color:white}
-.muted{color:#aaa}
-.hidden{display:none}
-.player{border-bottom:1px solid #333;padding:15px 0}
-.player:last-child{border:0}
+:root {
+  --red:#f0182d;
+  --bg:#08090c;
+  --panel:#12141a;
+  --line:#292d37;
+  --text:#f5f5f5;
+  --muted:#a3a7b2;
+  --green:#20a765;
+  --yellow:#d99b25;
+  --danger:#d93648;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  padding:20px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+main { max-width:1100px; margin:25px auto; }
+h1 { color:var(--red); margin-bottom:5px; }
+.muted { color:var(--muted); }
+.card {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:20px;
+  margin:15px 0;
+}
+.hidden { display:none!important; }
+input {
+  width:100%;
+  padding:13px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:#090b10;
+  color:white;
+}
+button {
+  padding:11px 15px;
+  border:0;
+  border-radius:7px;
+  cursor:pointer;
+  font-weight:bold;
+  margin:4px;
+}
+button:disabled { opacity:.5; cursor:wait; }
+.primary { background:var(--red); color:white; }
+.approve { background:var(--green); color:white; }
+.reject { background:var(--danger); color:white; }
+.neutral { background:#303541; color:white; }
+.whatsapp { background:#168c55; color:white; text-decoration:none; }
+.stats {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.stat {
+  background:#0b0d12;
+  border:1px solid var(--line);
+  padding:17px;
+  border-radius:9px;
+}
+.stat strong { display:block; font-size:27px; }
+.stat small { color:var(--muted); }
+.tabs {
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:18px 0;
+}
+.tab {
+  background:#292d37;
+  color:white;
+}
+.tab.active {
+  background:var(--red);
+}
+.player {
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:17px;
+  margin:13px 0;
+  background:#0d0f14;
+}
+.player h3 { margin:0 0 8px; }
+.status {
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+}
+.pending { background:#5d461a; color:#ffdb83; }
+.approved { background:#164d35; color:#91f0b9; }
+.rejected { background:#5b2028; color:#ffabb4; }
+.details {
+  margin-top:15px;
+  border-top:1px solid var(--line);
+  padding-top:12px;
+}
+details summary {
+  cursor:pointer;
+  color:#ff5969;
+  font-weight:bold;
+  padding:10px 0;
+}
+.answer {
+  padding:10px 0;
+  border-bottom:1px solid #252934;
+  overflow-wrap:anywhere;
+}
+.answer b {
+  display:block;
+  color:#b7bbc6;
+  font-size:12px;
+  margin-bottom:4px;
+}
+.actions { margin-top:13px; }
+.empty {
+  text-align:center;
+  padding:35px 10px;
+  color:var(--muted);
+}
+a { color:#75baff; }
+@media(max-width:600px) {
+  body { padding:12px; }
+  .stats { grid-template-columns:1fr 1fr; }
+  .card { padding:14px; }
+}
 </style>
 </head>
+
 <body>
 <main>
+
 <h1>RLK | ADMINISTRAÇÃO</h1>
 <p class="muted">Painel privado de recrutamento</p>
 
 <section class="card" id="login">
-<h2>Entrar como administrador</h2>
-<input id="email" type="email" placeholder="Seu e-mail" autocomplete="username">
-<input id="password" type="password" placeholder="Sua senha" autocomplete="current-password">
-<button class="primary" id="loginBtn">ENTRAR</button>
-<p id="message" class="muted"></p>
+  <h2>Entrar como administrador</h2>
+  <input id="email" type="email" placeholder="Seu e-mail">
+  <input id="password" type="password" placeholder="Sua senha">
+  <button class="primary" id="loginBtn">ENTRAR</button>
+  <p id="message" class="muted"></p>
 </section>
 
 <section id="dashboard" class="hidden">
-<div class="card">
-<h2>Inscrições recebidas</h2>
-<h1 id="total">0 jogadores</h1>
-<button class="primary" id="refreshBtn">ATUALIZAR LISTA</button>
-<button id="logoutBtn">SAIR</button>
-</div>
-<div class="card">
-<div id="players">Carregando...</div>
-</div>
+
+  <div class="card">
+    <h2>Resumo das inscrições</h2>
+
+    <div class="stats">
+      <div class="stat">
+        <strong id="countPending">0</strong>
+        <small>Pendentes</small>
+      </div>
+      <div class="stat">
+        <strong id="countApproved">0</strong>
+        <small>Aprovados</small>
+      </div>
+      <div class="stat">
+        <strong id="countRejected">0</strong>
+        <small>Reprovados</small>
+      </div>
+    </div>
+
+    <p id="total" class="muted">Total: 0 inscrições</p>
+
+    <button class="primary" id="refreshBtn">ATUALIZAR</button>
+    <button class="neutral" id="logoutBtn">SAIR</button>
+  </div>
+
+  <div class="card">
+    <h2>Gerenciar jogadores</h2>
+
+    <input
+      id="search"
+      type="search"
+      placeholder="Pesquisar por nick, ID, cidade ou WhatsApp..."
+    >
+
+    <div class="tabs">
+      <button class="tab active" data-filter="Pendente">
+        PENDENTES
+      </button>
+      <button class="tab" data-filter="Aprovado">
+        APROVADOS
+      </button>
+      <button class="tab" data-filter="Reprovado">
+        REPROVADOS
+      </button>
+    </div>
+
+    <div id="players" class="muted">Carregando...</div>
+  </div>
+
 </section>
 </main>
 
@@ -57,111 +217,285 @@ const client = window.supabase.createClient(
 
 const loginBox = document.getElementById("login");
 const dashboard = document.getElementById("dashboard");
-const message = document.getElementById("message");
 const players = document.getElementById("players");
+const search = document.getElementById("search");
 
-async function loadPlayers(){
-  players.textContent = "Carregando inscrições...";
+let inscriptions = [];
+let currentFilter = "Pendente";
 
-  const {data,error} = await client
-    .from("inscricoes_rlk")
-    .select("*")
-    .order("criado_em",{ascending:false});
+const fields = [
+  ["nick", "Nick"],
+  ["jogador_id", "ID do jogador"],
+  ["idade", "Idade"],
+  ["cidade", "Cidade"],
+  ["whatsapp", "WhatsApp"],
+  ["funcao", "Função principal"],
+  ["patente", "Patente"],
+  ["experiencia", "Experiência"],
+  ["competitivo", "Participa de competitivo?"],
+  ["experiencia_guerra", "Experiência em guerra"],
+  ["nivel_guerra", "Nível em guerra"],
+  ["funcao_guerra", "Função na guerra"],
+  ["chamadas", "Chamadas"],
+  ["treino", "Treinos"],
+  ["comunicacao", "Comunicação"],
+  ["detalhes_guerra", "Detalhes sobre guerras"],
+  ["situacao_guerra", "Situação nas guerras"],
+  ["dias", "Dias disponíveis"],
+  ["horario", "Horários disponíveis"],
+  ["microfone", "Possui microfone?"],
+  ["motivacao", "Motivação para entrar na RLK"],
+  ["guilda_anterior", "Guilda anterior"],
+  ["criado_em", "Data da inscrição"]
+];
 
-  if(error){
-    players.textContent = "Erro ao carregar: " + error.message;
-    return;
+function formatValue(value, key) {
+  if (value === null || value === undefined || value === "") {
+    return "Não informado";
   }
 
-  document.getElementById("total").textContent =
-    data.length + " jogadores";
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
 
+  if (key === "criado_em") {
+    const date = new Date(value);
+    return isNaN(date) ? String(value) : date.toLocaleString("pt-BR");
+  }
+
+  return String(value);
+}
+
+function makeAnswer(label, value) {
+  const item = document.createElement("div");
+  item.className = "answer";
+
+  const title = document.createElement("b");
+  title.textContent = label;
+
+  const content = document.createElement("div");
+  content.textContent = value;
+
+  item.append(title, content);
+  return item;
+}
+
+function whatsappLink(number) {
+  const digits = String(number || "").replace(/\D/g, "");
+  if (!digits) return null;
+
+  const fullNumber = digits.startsWith("55")
+    ? digits
+    : "55" + digits;
+
+  const link = document.createElement("a");
+  link.className = "whatsapp";
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.href = "https://wa.me/" + fullNumber;
+  link.textContent = "ABRIR WHATSAPP";
+
+  return link;
+}
+
+function renderPlayers() {
   players.replaceChildren();
 
-  if(data.length === 0){
-    players.textContent = "Nenhuma inscrição encontrada.";
+  const term = search.value.trim().toLowerCase();
+
+  const filtered = inscriptions.filter(p => {
+    const status = p.status || "Pendente";
+
+    if (status !== currentFilter) return false;
+
+    const searchable = [
+      p.nick,
+      p.jogador_id,
+      p.cidade,
+      p.whatsapp
+    ].join(" ").toLowerCase();
+
+    return searchable.includes(term);
+  });
+
+  if (!filtered.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Nenhuma inscrição encontrada nesta aba.";
+    players.appendChild(empty);
     return;
   }
 
-  data.forEach(p=>{
-    const card = document.createElement("div");
+  filtered.forEach(p => {
+    const card = document.createElement("article");
     card.className = "player";
 
     const title = document.createElement("h3");
-    title.textContent = p.nick || "Sem nick";
+    title.textContent = p.nick || "Jogador sem nick";
 
-    const details = document.createElement("p");
-    details.textContent =
-      "ID: " + p.jogador_id +
-      " | Idade: " + p.idade +
-      " | Cidade: " + (p.cidade || "Não informada") +
+    const status = document.createElement("span");
+    status.className = "status " +
+      (p.status === "Aprovado" ? "approved" :
+       p.status === "Reprovado" ? "rejected" : "pending");
+    status.textContent = p.status || "Pendente";
+
+    const basic = document.createElement("p");
+    basic.className = "muted";
+    basic.textContent =
+      "ID: " + (p.jogador_id || "Não informado") +
+      " | Idade: " + (p.idade ?? "Não informada") +
       " | Função: " + (p.funcao || "Não informada");
 
-    const motivation = document.createElement("p");
-    motivation.textContent = "Motivação: " + (p.motivacao || "Não informada");
+    card.append(title, status, basic);
 
-    const status = document.createElement("p");
-    status.textContent = "Status: " + p.status;
+    const details = document.createElement("details");
+    details.className = "details";
 
-    const approve = document.createElement("button");
-    approve.className = "approve";
-    approve.textContent = "APROVAR";
-    approve.onclick = ()=>changeStatus(p.id,"Aprovado");
+    const summary = document.createElement("summary");
+    summary.textContent = "VER TODAS AS RESPOSTAS";
 
-    const reject = document.createElement("button");
-    reject.className = "reject";
-    reject.textContent = "REPROVAR";
-    reject.onclick = ()=>changeStatus(p.id,"Reprovado");
+    const answers = document.createElement("div");
 
-    card.append(title,details,motivation,status,approve,reject);
+    fields.forEach(([key, label]) => {
+      answers.appendChild(
+        makeAnswer(label, formatValue(p[key], key))
+      );
+    });
+
+    details.append(summary, answers);
+    card.appendChild(details);
+
+    const contact = whatsappLink(p.whatsapp);
+    if (contact) {
+      const contactArea = document.createElement("div");
+      contactArea.className = "actions";
+      contactArea.appendChild(contact);
+      card.appendChild(contactArea);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    if (p.status === "Pendente" || !p.status) {
+      const approve = document.createElement("button");
+      approve.className = "approve";
+      approve.textContent = "APROVAR";
+      approve.onclick = () => changeStatus(p.id, "Aprovado");
+
+      const reject = document.createElement("button");
+      reject.className = "reject";
+      reject.textContent = "REPROVAR";
+      reject.onclick = () => changeStatus(p.id, "Reprovado");
+
+      actions.append(approve, reject);
+    } else {
+      const reopen = document.createElement("button");
+      reopen.className = "neutral";
+      reopen.textContent = "VOLTAR PARA PENDENTES";
+      reopen.onclick = () => changeStatus(p.id, "Pendente");
+      actions.appendChild(reopen);
+    }
+
+    card.appendChild(actions);
     players.appendChild(card);
   });
 }
 
-async function changeStatus(id,status){
-  const {error} = await client
-    .from("inscricoes_rlk")
-    .update({status})
-    .eq("id",id);
+async function loadPlayers() {
+  players.textContent = "Carregando inscrições...";
 
-  if(error){
+  const { data, error } = await client
+    .from("inscricoes_rlk")
+    .select("*")
+    .order("criado_em", { ascending: false });
+
+  if (error) {
+    players.textContent = "Erro ao carregar: " + error.message;
+    return;
+  }
+
+  inscriptions = data || [];
+
+  document.getElementById("countPending").textContent =
+    inscriptions.filter(p => !p.status || p.status === "Pendente").length;
+
+  document.getElementById("countApproved").textContent =
+    inscriptions.filter(p => p.status === "Aprovado").length;
+
+  document.getElementById("countRejected").textContent =
+    inscriptions.filter(p => p.status === "Reprovado").length;
+
+  document.getElementById("total").textContent =
+    "Total: " + inscriptions.length + " inscrições";
+
+  renderPlayers();
+}
+
+async function changeStatus(id, status) {
+  const confirmation = confirm(
+    "Deseja realmente alterar o status para " + status + "?"
+  );
+
+  if (!confirmation) return;
+
+  const { error } = await client
+    .from("inscricoes_rlk")
+    .update({ status })
+    .eq("id", id);
+
+  if (error) {
     alert("Erro ao alterar status: " + error.message);
     return;
   }
 
-  loadPlayers();
+  await loadPlayers();
 }
 
-document.getElementById("loginBtn").onclick = async ()=>{
+document.getElementById("loginBtn").onclick = async () => {
+  const message = document.getElementById("message");
   message.textContent = "Verificando acesso...";
 
-  const {error} = await client.auth.signInWithPassword({
-    email:document.getElementById("email").value,
-    password:document.getElementById("password").value
+  const { error } = await client.auth.signInWithPassword({
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value
   });
 
-  if(error){
+  if (error) {
     message.textContent = "Não foi possível entrar. Confira e-mail e senha.";
     return;
   }
 
   loginBox.classList.add("hidden");
   dashboard.classList.remove("hidden");
-  loadPlayers();
+  await loadPlayers();
 };
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    currentFilter = tab.dataset.filter;
+
+    document.querySelectorAll(".tab").forEach(item => {
+      item.classList.toggle("active", item === tab);
+    });
+
+    renderPlayers();
+  });
+});
+
+search.addEventListener("input", renderPlayers);
 
 document.getElementById("refreshBtn").onclick = loadPlayers;
 
-document.getElementById("logoutBtn").onclick = async ()=>{
+document.getElementById("logoutBtn").onclick = async () => {
   await client.auth.signOut();
   dashboard.classList.add("hidden");
   loginBox.classList.remove("hidden");
   document.getElementById("password").value = "";
-  message.textContent = "Você saiu do painel.";
+  document.getElementById("message").textContent = "Você saiu do painel.";
 };
 
-client.auth.getSession().then(({data})=>{
-  if(data.session){
+client.auth.getSession().then(({ data }) => {
+  if (data.session) {
     loginBox.classList.add("hidden");
     dashboard.classList.remove("hidden");
     loadPlayers();
