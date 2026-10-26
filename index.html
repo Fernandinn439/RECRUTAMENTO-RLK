@@ -70,6 +70,64 @@ footer{text-align:center;color:#777b85;padding:35px 10px;font-size:11px;letter-s
 <footer><b>RLK</b> · FREE FIRE · FAMÍLIA · FOCO · VITÓRIA</footer>
 <script>
 const form=document.getElementById('joinForm'), success=document.getElementById('success');
-form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form).entries());data.days=[...form.querySelectorAll('input[name="days"]:checked')].map(x=>x.value);data.submittedAt=new Date().toISOString();const all=JSON.parse(localStorage.getItem('rlk_applications')||'[]');all.push(data);localStorage.setItem('rlk_applications',JSON.stringify(all));success.style.display='block';form.reset();success.scrollIntoView({behavior:'smooth',block:'center'});});
+
+</script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://pcabchaqmqllfvvvudbl.supabase.co";
+const SUPABASE_KEY = "sb_publishable_THm0a3RUx5Y3oxX303HRbg_JZc7K4aS";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+ 
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const fd = new FormData(form);
+  const get = name => fd.get(name) || null;
+
+  const data = {
+    nick: get('nick'),
+    jogador_id: get('id'),
+    idade: Number(get('age')),
+    cidade: get('city'),
+    funcao: get('role'),
+    patente: get('rank'),
+    experiencia: get('experience'),
+    competitivo: get('competitive'),
+    experiencia_guerra: get('guild_war_experience'),
+    nivel_guerra: get('war_level'),
+    funcao_guerra: get('war_role'),
+    chamadas: get('calls'),
+    treino: get('training'),
+    comunicacao: get('voice_war'),
+    detalhes_guerra: get('war_experience_details'),
+    situacao_guerra: get('war_situation'),
+    dias: [...form.querySelectorAll('input[name="days"]:checked')].map(x => x.value),
+    horario: get('time'),
+    microfone: get('mic'),
+    motivacao: get('motivation'),
+    guilda_anterior: get('previous')
+  };
+
+  const { error } = await supabaseClient
+    .from('inscricoes_rlk')
+    .insert([data]);
+
+  if (error) {
+    alert('Erro ao enviar inscrição: ' + error.message);
+    return;
+  }
+
+  success.textContent = 'Inscrição enviada com sucesso! A administração da RLK recebeu seus dados.';
+  success.style.display = 'block';
+
+  form.reset();
+  success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
 </script>
 </body></html>
