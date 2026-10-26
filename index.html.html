@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RLK | Recrutamento</title>
+<style>
+:root{--red:#f0182d;--red2:#9e0718;--bg:#08090c;--panel:#111319;--line:#392027;--muted:#a7a9b2;--white:#f4f4f6}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 50% 0,#351018 0,transparent 40%),var(--bg);color:var(--white);font:15px/1.55 Arial,Helvetica,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background:repeating-linear-gradient(132deg,transparent 0 80px,#e51b31 81px 83px,transparent 84px 170px);mask-image:linear-gradient(to bottom,#000,transparent 75%)}
+a{color:inherit;text-decoration:none}.wrap{width:min(1180px,92%);margin:auto}
+header{height:76px;border-bottom:1px solid #4b1720;background:#08090ceF;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+nav{height:100%;display:flex;align-items:center;justify-content:space-between}.brand{font-weight:1000;font-size:38px;letter-spacing:-4px;font-style:italic;color:var(--red);text-shadow:2px 2px #fff}.brand span{color:#fff}.navtag{font-size:11px;letter-spacing:2px;color:#ff5262;border:1px solid #641d29;padding:8px 13px}
+.hero{min-height:430px;display:grid;grid-template-columns:1.2fr .8fr;align-items:center;gap:25px;padding:58px 0 48px;position:relative}
+.eyebrow{color:#ff5262;letter-spacing:4px;font-size:11px;font-weight:bold}.hero h1{font-size:clamp(64px,11vw,130px);line-height:.82;letter-spacing:-8px;margin:15px 0;color:#fff;text-shadow:5px 5px 0 #8d0a1b}.hero h1 em{color:var(--red);font-style:normal}.hero p{max-width:560px;color:#c4c5cb}.hero-card{border:1px solid #67202b;background:linear-gradient(145deg,#1a0d12,#0b0c10);padding:27px;transform:skewY(-2deg);box-shadow:12px 12px 0 #280b12}.hero-card>*{transform:skewY(2deg)}.hero-card strong{display:block;font-size:25px;line-height:1.15}.hero-card strong span{color:var(--red)}.hero-card p{font-size:13px}.btn{display:inline-block;background:var(--red);color:#fff;font-weight:900;letter-spacing:1px;padding:14px 22px;border:0;cursor:pointer;margin-top:12px}.btn:hover{background:#ff394d;transform:translateY(-2px)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-block:1px solid #4a1b24;margin:8px 0 35px}.stat{text-align:center;padding:17px 8px;color:#c8c8ce;font-size:12px;letter-spacing:1px}.stat b{display:block;color:var(--red);font-size:17px}
+.layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:25px;align-items:start}.side,.formbox{background:linear-gradient(145deg,#15171e,#0c0d11);border:1px solid var(--line);padding:25px}.side h2,.formbox h2{margin:0 0 14px;font-size:20px}.side h2 span,.formbox h2 span{color:var(--red)}.side p{color:var(--muted);font-size:13px}.rule{padding:11px 0;border-bottom:1px solid #25252c;font-size:13px;color:#d7d7dc}.rule:last-child{border:0}.rule b{color:var(--red);margin-right:9px}
+.formbox{border-color:#72202c;box-shadow:0 0 35px #a10b1c17}.formbox>p{color:var(--muted);font-size:13px;margin-top:-8px}.section{border-top:1px solid #44202a;padding-top:19px;margin-top:20px}.section h3{font-size:13px;letter-spacing:1px;margin:0 0 14px;color:#fff}.section h3 i{font-style:normal;color:var(--red);font-size:20px;margin-right:8px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field.full{grid-column:1/-1}label{display:block;font-size:12px;color:#d8d8dd;margin-bottom:6px}input,select,textarea{width:100%;background:#090b10;border:1px solid #343640;color:#fff;padding:12px;border-radius:3px;font:13px Arial;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 2px #f0182d20}textarea{min-height:95px;resize:vertical}.choices{display:flex;flex-wrap:wrap;gap:10px 18px}.choices label,.check label{display:flex;align-items:center;gap:8px;color:#c9c9d0;font-size:12px;margin:0}.choices input,.check input{width:auto;accent-color:var(--red)}.check{display:grid;gap:12px}.submit{width:100%;font-size:14px;margin-top:20px}.notice{font-size:11px;color:#8f929c;text-align:center}.success{display:none;padding:15px;border:1px solid #1e784d;background:#0b2118;color:#b9f4d4;margin-top:14px}
+footer{text-align:center;color:#777b85;padding:35px 10px;font-size:11px;letter-spacing:3px}footer b{color:var(--red)}
+@media(max-width:800px){.hero{grid-template-columns:1fr;padding:45px 0}.hero-card{max-width:500px}.layout{grid-template-columns:1fr}.side{order:2}.formbox{order:1}.hero h1{letter-spacing:-5px}.stats{grid-template-columns:1fr}.stat{border-bottom:1px solid #32151c}.fields{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><nav class="wrap"><a class="brand" href="#">R<span>LK</span></a><div class="navtag">FREE FIRE · RECRUTAMENTO</div></nav></header>
+<main class="wrap">
+<section class="hero">
+ <div><div class="eyebrow">SUA PRÓXIMA HISTÓRIA COMEÇA AQUI</div><h1>R<em>LK</em></h1><p>Mais que uma guilda: um time que cresce junto. Preencha sua inscrição e apresente seu jogo, sua atitude e sua vontade de evoluir.</p><a class="btn" href="#inscricao">QUERO ENTRAR NA RLK ↗</a></div>
+ <div class="hero-card"><div class="eyebrow">RECRUTAMENTO · FREE FIRE</div><strong>JUNTOS SOMOS<br><span>MAIS FORTES.</span></strong><p>Respeito, compromisso e espírito de equipe. A vitória começa antes da partida.</p></div>
+</section>
+<section class="stats"><div class="stat"><b>01</b> IDENTIDADE</div><div class="stat"><b>02</b> COMPROMISSO</div><div class="stat"><b>03</b> EVOLUÇÃO</div></section>
+<div class="layout">
+<aside class="side"><h2>SOBRE A <span>RLK</span></h2><p>Este espaço é da sua guilda. Edite os textos abaixo com a história e os objetivos reais da RLK antes de publicar.</p>
+<div class="section"><h3><span>◆</span> O QUE VALORIZAMOS</h3><div class="rule"><b>01</b> Respeito entre os membros</div><div class="rule"><b>02</b> Espírito de equipe</div><div class="rule"><b>03</b> Vontade de evoluir</div><div class="rule"><b>04</b> Comprometimento</div></div>
+<div class="section"><h3><span>◆</span> FUNÇÕES</h3><div class="rule">Cura</div><div class="rule">Rush</div><div class="rule">Gás</div></div>
+<div class="section"><h3><span>◆</span> AVISO</h3><p>As informações enviadas serão usadas pela administração da RLK para avaliar sua inscrição. Não compartilhe senhas nem códigos de acesso.</p></div>
+</aside>
+<section class="formbox" id="inscricao"><h2>FORMULÁRIO DE <span>RECRUTAMENTO</span></h2><p>Preencha com atenção. Os campos com * são obrigatórios.</p>
+<form id="joinForm">
+<div class="section"><h3><i>01</i> DADOS DO JOGADOR</h3><div class="fields">
+<div class="field"><label>Nick no Free Fire *</label><input name="nick" required maxlength="30" placeholder="Seu nick"></div>
+<div class="field"><label>ID do jogador *</label><input name="id" required inputmode="numeric" placeholder="Seu ID"></div>
+<div class="field"><label>Idade *</label><input name="age" required type="number" min="1" max="99" placeholder="Sua idade"></div>
+<div class="field"><label>Cidade / Estado</label><input name="city" placeholder="Ex.: Curitiba - PR"></div>
+</div></div>
+<div class="section"><h3><i>02</i> PERFIL DE JOGO</h3><div class="fields">
+<div class="field"><label>Função principal *</label><select name="role" required><option value="">Selecione</option><option>Cura</option><option>Rush</option><option>Gás</option></select></div>
+<div class="field"><label>Patente atual</label><select name="rank"><option value="">Selecione</option><option>Bronze / Prata</option><option>Ouro</option><option>Platina</option><option>Diamante</option><option>Mestre</option><option>Desafiante</option></select></div>
+<div class="field"><label>Há quanto tempo joga?</label><select name="experience"><option value="">Selecione</option><option>Menos de 6 meses</option><option>6 meses a 1 ano</option><option>1 a 3 anos</option><option>Mais de 3 anos</option></select></div>
+<div class="field"><label>Joga competitivo?</label><select name="competitive"><option value="">Selecione</option><option>Sim</option><option>Não</option><option>Quero começar</option></select></div>
+</div></div>
+<div class="section"><h3><i>03</i> GUERRAS DE GUILDA</h3><div class="fields">
+<div class="field"><label>Já participou de guerras de guilda? *</label><select name="guild_war_experience" required><option value="">Selecione</option><option>Sim, frequentemente</option><option>Sim, algumas vezes</option><option>Não, mas quero aprender</option></select></div>
+<div class="field"><label>Qual sua experiência em guerra?</label><select name="war_level"><option value="">Selecione</option><option>Iniciante</option><option>Intermediário</option><option>Experiente</option></select></div>
+<div class="field"><label>Em qual função rende melhor durante a guerra? *</label><select name="war_role" required><option value="">Selecione</option><option>Cura</option><option>Rush</option><option>Gás</option></select></div>
+<div class="field"><label>Consegue seguir as estratégias e chamadas do líder? *</label><select name="calls" required><option value="">Selecione</option><option>Sim, sempre</option><option>Na maioria das vezes</option><option>Tenho dificuldade</option></select></div>
+<div class="field"><label>Tem disponibilidade para treinos antes das guerras?</label><select name="training" ><option value="">Selecione</option><option>Sim</option><option>Não</option><option>Depende do horário</option></select></div>
+<div class="field"><label>Costuma jogar guerras com comunicação por voz?</label><select name="voice_war"><option value="">Selecione</option><option>Sim, com microfone</option><option>Sim, mas só escuto</option><option>Não</option></select></div>
+<div class="field full"><label>Conte sobre sua experiência em guerras: o que você faz bem e o que precisa melhorar?</label><textarea name="war_experience_details" maxlength="700" placeholder="Ex.: posicionamento, comunicação, suporte, avanço, estratégia..."></textarea></div>
+<div class="field full"><label>O que você faria se a equipe estivesse perdendo uma guerra?</label><textarea name="war_situation" maxlength="500" placeholder="Como ajudaria a equipe nessa situação?"></textarea></div>
+</div></div>
+<div class="section"><h3><i>04</i> DISPONIBILIDADE</h3><label>Quais dias costuma jogar?</label><div class="choices">
+<label><input type="checkbox" name="days" value="Segunda a sexta"> Segunda a sexta</label><label><input type="checkbox" name="days" value="Sábado"> Sábado</label><label><input type="checkbox" name="days" value="Domingo"> Domingo</label>
+</div><div class="fields" style="margin-top:14px"><div class="field"><label>Horário mais comum</label><select name="time"><option value="">Selecione</option><option>Manhã</option><option>Tarde</option><option>Noite</option><option>Madrugada</option><option>Varia bastante</option></select></div><div class="field"><label>Tem microfone?</label><select name="mic"><option value="">Selecione</option><option>Sim</option><option>Não</option><option>Às vezes</option></select></div></div></div>
+<div class="section"><h3><i>05</i> CONHEÇA O JOGADOR</h3><div class="fields"><div class="field full"><label>Por que quer fazer parte da RLK? *</label><textarea name="motivation" required maxlength="700" placeholder="Conte um pouco sobre você e o que espera da guilda..."></textarea></div><div class="field full"><label>Já participou de outra guilda? Qual? (opcional)</label><input name="previous" placeholder="Nome da guilda ou não"></div></div></div>
+<div class="section"><h3><i>06</i> CONFIRMAÇÃO</h3><div class="check"><label><input type="checkbox" required> Confirmo que as informações acima são verdadeiras.</label><label><input type="checkbox" required> Comprometo-me a respeitar os membros e as regras da RLK.</label></div></div>
+<button class="btn submit" type="submit">ENVIAR INSCRIÇÃO ↗</button><div class="notice">Protótipo local: as inscrições ficam salvas somente neste navegador até conectar um serviço de recebimento.</div><div class="success" id="success">Inscrição registrada neste navegador! A administração ainda precisa receber os dados por uma integração online.</div>
+</form></section></div>
+</main>
+<footer><b>RLK</b> · FREE FIRE · FAMÍLIA · FOCO · VITÓRIA</footer>
+<script>
+const form=document.getElementById('joinForm'), success=document.getElementById('success');
+form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form).entries());data.days=[...form.querySelectorAll('input[name="days"]:checked')].map(x=>x.value);data.submittedAt=new Date().toISOString();const all=JSON.parse(localStorage.getItem('rlk_applications')||'[]');all.push(data);localStorage.setItem('rlk_applications',JSON.stringify(all));success.style.display='block';form.reset();success.scrollIntoView({behavior:'smooth',block:'center'});});
+</script>
+</body></html>
