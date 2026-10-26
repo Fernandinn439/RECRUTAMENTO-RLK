@@ -3,406 +3,605 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RLK | Painel Administrativo</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
   --red:#f0182d;
+  --red-dark:#a20b1c;
   --bg:#08090c;
-  --panel:#12141a;
-  --line:#292d37;
+  --panel:#111319;
+  --panel2:#171a22;
+  --line:#292d38;
   --text:#f5f5f5;
-  --muted:#a3a7b2;
-  --green:#20a765;
-  --yellow:#d99b25;
-  --danger:#d93648;
+  --muted:#9298a5;
+  --green:#20c77a;
+  --yellow:#f0b429;
 }
+
 * { box-sizing:border-box; }
+
 body {
   margin:0;
-  padding:20px;
   background:var(--bg);
   color:var(--text);
-  font-family:Arial,sans-serif;
+  font-family:Arial, sans-serif;
 }
-main { max-width:1100px; margin:25px auto; }
-h1 { color:var(--red); margin-bottom:5px; }
-.muted { color:var(--muted); }
-.card {
+
+button,input {
+  font:inherit;
+}
+
+.hidden { display:none !important; }
+
+header {
+  padding:20px;
+  border-bottom:1px solid var(--line);
+  background:#0d0e13;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.logo {
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.logo span { color:var(--red); }
+
+.subtitle {
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+}
+
+.container {
+  width:min(1200px,94%);
+  margin:28px auto;
+}
+
+.panel {
   background:var(--panel);
   border:1px solid var(--line);
-  border-radius:12px;
-  padding:20px;
-  margin:15px 0;
+  border-radius:14px;
+  padding:22px;
 }
-.hidden { display:none!important; }
+
+.login-area {
+  width:min(420px,92%);
+  margin:75px auto;
+}
+
+h1,h2,h3 { margin-top:0; }
+
+h1 { font-size:23px; }
+
+.muted {
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+
+.field {
+  margin:17px 0;
+}
+
+label {
+  display:block;
+  margin-bottom:7px;
+  color:#c5c8d0;
+  font-size:13px;
+}
+
 input {
   width:100%;
   padding:13px;
-  margin:8px 0;
-  border-radius:8px;
+  background:#090a0e;
+  color:white;
   border:1px solid var(--line);
-  background:#090b10;
+  border-radius:8px;
+  outline:none;
+}
+
+input:focus {
+  border-color:var(--red);
+}
+
+button {
+  border:0;
+  border-radius:8px;
+  padding:11px 15px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.15s;
+}
+
+button:disabled {
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.primary {
+  background:var(--red);
   color:white;
 }
-button {
-  padding:11px 15px;
-  border:0;
-  border-radius:7px;
-  cursor:pointer;
-  font-weight:bold;
-  margin:4px;
+
+.primary:hover { background:#d50e25; }
+
+.secondary {
+  background:#252936;
+  color:white;
+  border:1px solid var(--line);
 }
-button:disabled { opacity:.5; cursor:wait; }
-.primary { background:var(--red); color:white; }
-.approve { background:var(--green); color:white; }
-.reject { background:var(--danger); color:white; }
-.neutral { background:#303541; color:white; }
-.whatsapp { background:#168c55; color:white; text-decoration:none; }
+
+.danger {
+  background:#57131d;
+  color:#ffb9c0;
+}
+
+.success {
+  background:#12452f;
+  color:#9ff0c5;
+}
+
+.warning {
+  background:#4c3911;
+  color:#ffe09a;
+}
+
+.full-button { width:100%; }
+
+.message {
+  margin-top:13px;
+  padding:11px;
+  border-radius:8px;
+  font-size:13px;
+  display:none;
+  line-height:1.5;
+}
+
+.message.error {
+  display:block;
+  background:#40151b;
+  color:#ffb9c0;
+}
+
+.message.ok {
+  display:block;
+  background:#123c2b;
+  color:#a6f0c7;
+}
+
+.top-actions {
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+}
+
 .stats {
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:12px;
+  gap:13px;
+  margin-bottom:20px;
 }
+
 .stat {
-  background:#0b0d12;
+  background:var(--panel);
   border:1px solid var(--line);
+  border-radius:12px;
   padding:17px;
-  border-radius:9px;
 }
-.stat strong { display:block; font-size:27px; }
-.stat small { color:var(--muted); }
+
+.stat small {
+  color:var(--muted);
+  font-size:12px;
+}
+
+.stat strong {
+  display:block;
+  font-size:28px;
+  margin-top:8px;
+}
+
 .tabs {
   display:flex;
+  gap:8px;
   flex-wrap:wrap;
-  gap:7px;
-  margin:18px 0;
+  margin:20px 0;
 }
+
 .tab {
-  background:#292d37;
-  color:white;
-}
-.tab.active {
-  background:var(--red);
-}
-.player {
+  background:#171a22;
+  color:#c6cad3;
   border:1px solid var(--line);
-  border-radius:10px;
+}
+
+.tab.active {
+  background:var(--red-dark);
+  color:white;
+  border-color:var(--red);
+}
+
+.search {
+  margin-bottom:17px;
+}
+
+.player-list {
+  display:grid;
+  gap:13px;
+}
+
+.player {
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
   padding:17px;
-  margin:13px 0;
-  background:#0d0f14;
 }
-.player h3 { margin:0 0 8px; }
-.status {
-  display:inline-block;
-  padding:5px 10px;
-  border-radius:20px;
-  font-size:12px;
+
+.player-top {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.player-name {
+  font-size:18px;
   font-weight:bold;
-}
-.pending { background:#5d461a; color:#ffdb83; }
-.approved { background:#164d35; color:#91f0b9; }
-.rejected { background:#5b2028; color:#ffabb4; }
-.details {
-  margin-top:15px;
-  border-top:1px solid var(--line);
-  padding-top:12px;
-}
-details summary {
-  cursor:pointer;
-  color:#ff5969;
-  font-weight:bold;
-  padding:10px 0;
-}
-.answer {
-  padding:10px 0;
-  border-bottom:1px solid #252934;
   overflow-wrap:anywhere;
 }
-.answer b {
-  display:block;
-  color:#b7bbc6;
-  font-size:12px;
-  margin-bottom:4px;
-}
-.actions { margin-top:13px; }
-.empty {
-  text-align:center;
-  padding:35px 10px;
+
+.player-info {
   color:var(--muted);
+  font-size:12px;
+  margin-top:7px;
+  line-height:1.6;
 }
-a { color:#75baff; }
-@media(max-width:600px) {
-  body { padding:12px; }
-  .stats { grid-template-columns:1fr 1fr; }
-  .card { padding:14px; }
+
+.status {
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.status.Pendente {
+  background:#49370f;
+  color:#ffdc84;
+}
+
+.status.Aprovado {
+  background:#10452e;
+  color:#8ef0bd;
+}
+
+.status.Reprovado {
+  background:#501923;
+  color:#ffabb6;
+}
+
+.player-actions {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+
+.player-actions button {
+  font-size:12px;
+}
+
+.details {
+  display:none;
+  border-top:1px solid var(--line);
+  margin-top:16px;
+  padding-top:15px;
+}
+
+.details.open { display:block; }
+
+.details-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.detail-item {
+  background:#0b0d12;
+  border:1px solid #222630;
+  border-radius:8px;
+  padding:11px;
+  min-width:0;
+}
+
+.detail-item small {
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:6px;
+}
+
+.detail-item div {
+  font-size:13px;
+  overflow-wrap:anywhere;
+  white-space:pre-wrap;
+}
+
+.empty {
+  padding:35px 15px;
+  text-align:center;
+  color:var(--muted);
+  background:var(--panel);
+  border:1px dashed var(--line);
+  border-radius:12px;
+}
+
+.whatsapp-link {
+  display:inline-block;
+  margin-top:12px;
+  padding:10px 13px;
+  border-radius:8px;
+  background:#126b43;
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:13px;
+}
+
+.loading {
+  color:var(--muted);
+  padding:20px 0;
+}
+
+@media(max-width:650px) {
+  .stats { grid-template-columns:1fr; }
+  .details-grid { grid-template-columns:1fr; }
+  .container { margin:18px auto; }
+  .panel { padding:17px; }
 }
 </style>
 </head>
 
 <body>
-<main>
 
-<h1>RLK | ADMINISTRAÇÃO</h1>
-<p class="muted">Painel privado de recrutamento</p>
-
-<section class="card" id="login">
-  <h2>Entrar como administrador</h2>
-  <input id="email" type="email" placeholder="Seu e-mail">
-  <input id="password" type="password" placeholder="Sua senha">
-  <button class="primary" id="loginBtn">ENTRAR</button>
-  <p id="message" class="muted"></p>
-</section>
-
-<section id="dashboard" class="hidden">
-
-  <div class="card">
-    <h2>Resumo das inscrições</h2>
-
-    <div class="stats">
-      <div class="stat">
-        <strong id="countPending">0</strong>
-        <small>Pendentes</small>
-      </div>
-      <div class="stat">
-        <strong id="countApproved">0</strong>
-        <small>Aprovados</small>
-      </div>
-      <div class="stat">
-        <strong id="countRejected">0</strong>
-        <small>Reprovados</small>
-      </div>
-    </div>
-
-    <p id="total" class="muted">Total: 0 inscrições</p>
-
-    <button class="primary" id="refreshBtn">ATUALIZAR</button>
-    <button class="neutral" id="logoutBtn">SAIR</button>
+<header>
+  <div>
+    <div class="logo">RLK <span>ADMIN</span></div>
+    <div class="subtitle">Painel de gerenciamento de recrutamento</div>
   </div>
 
-  <div class="card">
-    <h2>Gerenciar jogadores</h2>
+  <div class="top-actions">
+    <button id="refreshBtn" class="secondary hidden">Atualizar</button>
+    <button id="logoutBtn" class="danger hidden">Sair da conta</button>
+  </div>
+</header>
 
+<!-- LOGIN -->
+<main id="loginBox" class="login-area">
+  <div class="panel">
+    <h1>Área administrativa</h1>
+    <p class="muted">Entre com o e-mail e a senha da conta administradora.</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" autocomplete="username" required placeholder="Seu e-mail">
+      </div>
+
+      <div class="field">
+        <label for="password">Senha</label>
+        <input id="password" type="password" autocomplete="current-password" required placeholder="Sua senha">
+      </div>
+
+      <button id="loginBtn" class="primary full-button" type="submit">
+        Entrar no painel
+      </button>
+
+      <div id="loginMessage" class="message"></div>
+    </form>
+
+    <p class="muted" style="margin-top:18px">
+      Acesso restrito aos administradores autorizados.
+    </p>
+  </div>
+</main>
+
+<!-- PAINEL -->
+<main id="dashboard" class="container hidden">
+
+  <div style="margin-bottom:20px">
+    <h1>Gerenciar inscrições</h1>
+    <p class="muted">Visualize, pesquise e atualize os candidatos da RLK.</p>
+  </div>
+
+  <section class="stats">
+    <div class="stat">
+      <small>PENDENTES</small>
+      <strong id="countPending">0</strong>
+    </div>
+
+    <div class="stat">
+      <small>APROVADOS</small>
+      <strong id="countApproved">0</strong>
+    </div>
+
+    <div class="stat">
+      <small>REPROVADOS</small>
+      <strong id="countRejected">0</strong>
+    </div>
+  </section>
+
+  <section class="panel">
     <input
-      id="search"
+      id="searchInput"
+      class="search"
       type="search"
       placeholder="Pesquisar por nick, ID, cidade ou WhatsApp..."
     >
 
     <div class="tabs">
-      <button class="tab active" data-filter="Pendente">
-        PENDENTES
-      </button>
-      <button class="tab" data-filter="Aprovado">
-        APROVADOS
-      </button>
-      <button class="tab" data-filter="Reprovado">
-        REPROVADOS
-      </button>
+      <button class="tab active" data-tab="Pendente">Pendentes</button>
+      <button class="tab" data-tab="Aprovado">Aprovados</button>
+      <button class="tab" data-tab="Reprovado">Reprovados</button>
     </div>
 
-    <div id="players" class="muted">Carregando...</div>
-  </div>
+    <div id="playerList" class="player-list">
+      <div class="loading">Carregando inscrições...</div>
+    </div>
 
-</section>
+    <div id="loadMessage" class="message"></div>
+  </section>
 </main>
 
 <script>
+const SUPABASE_URL = "https://pcabchaqmqllfvvvudbl.supabase.co";
+const SUPABASE_KEY = "sb_publishable_THm0a3RUx5Y3oxX303HRbg_JZc7K4aS";
+
 const client = window.supabase.createClient(
-  "https://pcabchaqmqllfvvvudbl.supabase.co",
-  "sb_publishable_THm0a3RUx5Y3oxX303HRbg_JZc7K4aS"
+  SUPABASE_URL,
+  SUPABASE_KEY,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: true,
+      detectSessionInUrl: false
+    }
+  }
 );
 
-const loginBox = document.getElementById("login");
+const loginBox = document.getElementById("loginBox");
 const dashboard = document.getElementById("dashboard");
-const players = document.getElementById("players");
-const search = document.getElementById("search");
+const loginForm = document.getElementById("loginForm");
+const loginBtn = document.getElementById("loginBtn");
+const loginMessage = document.getElementById("loginMessage");
+const playerList = document.getElementById("playerList");
+const searchInput = document.getElementById("searchInput");
+const refreshBtn = document.getElementById("refreshBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-let inscriptions = [];
-let currentFilter = "Pendente";
+let players = [];
+let currentTab = "Pendente";
 
-const fields = [
-  ["nick", "Nick"],
-  ["jogador_id", "ID do jogador"],
-  ["idade", "Idade"],
-  ["cidade", "Cidade"],
-  ["whatsapp", "WhatsApp"],
-  ["funcao", "Função principal"],
-  ["patente", "Patente"],
-  ["experiencia", "Experiência"],
-  ["competitivo", "Participa de competitivo?"],
-  ["experiencia_guerra", "Experiência em guerra"],
-  ["nivel_guerra", "Nível em guerra"],
-  ["funcao_guerra", "Função na guerra"],
-  ["chamadas", "Chamadas"],
-  ["treino", "Treinos"],
-  ["comunicacao", "Comunicação"],
-  ["detalhes_guerra", "Detalhes sobre guerras"],
-  ["situacao_guerra", "Situação nas guerras"],
-  ["dias", "Dias disponíveis"],
-  ["horario", "Horários disponíveis"],
-  ["microfone", "Possui microfone?"],
-  ["motivacao", "Motivação para entrar na RLK"],
-  ["guilda_anterior", "Guilda anterior"],
-  ["criado_em", "Data da inscrição"]
-];
+const labels = {
+  nick: "Nick",
+  jogador_id: "ID do jogador",
+  idade: "Idade",
+  cidade: "Cidade",
+  funcao: "Função principal",
+  patente: "Patente",
+  experiencia: "Experiência no jogo",
+  competitivo: "Experiência competitiva",
+  experiencia_guerra: "Experiência em guerra",
+  nivel_guerra: "Nível em guerra",
+  funcao_guerra: "Função na guerra",
+  chamadas: "Participação em chamadas",
+  treino: "Disponibilidade para treino",
+  comunicacao: "Comunicação",
+  detalhes_guerra: "Detalhes sobre guerras",
+  situacao_guerra: "Situação em guerras",
+  dias: "Dias disponíveis",
+  horario: "Horário disponível",
+  microfone: "Possui microfone?",
+  motivacao: "Por que quer entrar na RLK?",
+  guilda_anterior: "Guilda anterior",
+  whatsapp: "WhatsApp",
+  criado_em: "Data da inscrição"
+};
 
-function formatValue(value, key) {
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function showMessage(element, text, type) {
+  element.textContent = text;
+  element.className = "message " + type;
+}
+
+function clearMessage(element) {
+  element.textContent = "";
+  element.className = "message";
+}
+
+function formatValue(key, value) {
   if (value === null || value === undefined || value === "") {
     return "Não informado";
   }
 
-  if (Array.isArray(value)) {
+  if (key === "dias" && Array.isArray(value)) {
     return value.join(", ");
   }
 
   if (key === "criado_em") {
     const date = new Date(value);
-    return isNaN(date) ? String(value) : date.toLocaleString("pt-BR");
+    return isNaN(date) ? value : date.toLocaleString("pt-BR");
   }
 
-  return String(value);
+  return Array.isArray(value) ? value.join(", ") : String(value);
 }
 
-function makeAnswer(label, value) {
-  const item = document.createElement("div");
-  item.className = "answer";
-
-  const title = document.createElement("b");
-  title.textContent = label;
-
-  const content = document.createElement("div");
-  content.textContent = value;
-
-  item.append(title, content);
-  return item;
+function showDashboard() {
+  loginBox.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+  refreshBtn.classList.remove("hidden");
+  logoutBtn.classList.remove("hidden");
 }
 
-function whatsappLink(number) {
-  const digits = String(number || "").replace(/\D/g, "");
-  if (!digits) return null;
-
-  const fullNumber = digits.startsWith("55")
-    ? digits
-    : "55" + digits;
-
-  const link = document.createElement("a");
-  link.className = "whatsapp";
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.href = "https://wa.me/" + fullNumber;
-  link.textContent = "ABRIR WHATSAPP";
-
-  return link;
+function showLogin() {
+  dashboard.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+  refreshBtn.classList.add("hidden");
+  logoutBtn.classList.add("hidden");
 }
 
-function renderPlayers() {
-  players.replaceChildren();
+loginForm.addEventListener("submit", async function(event) {
+  event.preventDefault();
+  clearMessage(loginMessage);
 
-  const term = search.value.trim().toLowerCase();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-  const filtered = inscriptions.filter(p => {
-    const status = p.status || "Pendente";
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Verificando...";
 
-    if (status !== currentFilter) return false;
-
-    const searchable = [
-      p.nick,
-      p.jogador_id,
-      p.cidade,
-      p.whatsapp
-    ].join(" ").toLowerCase();
-
-    return searchable.includes(term);
+  const { data, error } = await client.auth.signInWithPassword({
+    email,
+    password
   });
 
-  if (!filtered.length) {
-    const empty = document.createElement("div");
-    empty.className = "empty";
-    empty.textContent = "Nenhuma inscrição encontrada nesta aba.";
-    players.appendChild(empty);
+  loginBtn.disabled = false;
+  loginBtn.textContent = "Entrar no painel";
+
+  if (error) {
+    showMessage(loginMessage, "Não foi possível entrar. Confira o e-mail e a senha.", "error");
     return;
   }
 
-  filtered.forEach(p => {
-    const card = document.createElement("article");
-    card.className = "player";
+  if (!data.session) {
+    showMessage(loginMessage, "Não foi possível iniciar a sessão.", "error");
+    return;
+  }
 
-    const title = document.createElement("h3");
-    title.textContent = p.nick || "Jogador sem nick";
-
-    const status = document.createElement("span");
-    status.className = "status " +
-      (p.status === "Aprovado" ? "approved" :
-       p.status === "Reprovado" ? "rejected" : "pending");
-    status.textContent = p.status || "Pendente";
-
-    const basic = document.createElement("p");
-    basic.className = "muted";
-    basic.textContent =
-      "ID: " + (p.jogador_id || "Não informado") +
-      " | Idade: " + (p.idade ?? "Não informada") +
-      " | Função: " + (p.funcao || "Não informada");
-
-    card.append(title, status, basic);
-
-    const details = document.createElement("details");
-    details.className = "details";
-
-    const summary = document.createElement("summary");
-    summary.textContent = "VER TODAS AS RESPOSTAS";
-
-    const answers = document.createElement("div");
-
-    fields.forEach(([key, label]) => {
-      answers.appendChild(
-        makeAnswer(label, formatValue(p[key], key))
-      );
-    });
-
-    details.append(summary, answers);
-    card.appendChild(details);
-
-    const contact = whatsappLink(p.whatsapp);
-    if (contact) {
-      const contactArea = document.createElement("div");
-      contactArea.className = "actions";
-      contactArea.appendChild(contact);
-      card.appendChild(contactArea);
-    }
-
-    const actions = document.createElement("div");
-    actions.className = "actions";
-
-    if (p.status === "Pendente" || !p.status) {
-      const approve = document.createElement("button");
-      approve.className = "approve";
-      approve.textContent = "APROVAR";
-      approve.onclick = () => changeStatus(p.id, "Aprovado");
-
-      const reject = document.createElement("button");
-      reject.className = "reject";
-      reject.textContent = "REPROVAR";
-      reject.onclick = () => changeStatus(p.id, "Reprovado");
-
-      actions.append(approve, reject);
-    } else {
-      const reopen = document.createElement("button");
-      reopen.className = "neutral";
-      reopen.textContent = "VOLTAR PARA PENDENTES";
-      reopen.onclick = () => changeStatus(p.id, "Pendente");
-      actions.appendChild(reopen);
-    }
-
-    card.appendChild(actions);
-    players.appendChild(card);
-  });
-}
+  showDashboard();
+  await loadPlayers();
+});
 
 async function loadPlayers() {
-  players.textContent = "Carregando inscrições...";
+  playerList.innerHTML = '<div class="loading">Carregando inscrições...</div>';
+  clearMessage(document.getElementById("loadMessage"));
 
   const { data, error } = await client
     .from("inscricoes_rlk")
@@ -410,97 +609,182 @@ async function loadPlayers() {
     .order("criado_em", { ascending: false });
 
   if (error) {
-    players.textContent = "Erro ao carregar: " + error.message;
+    playerList.innerHTML = "";
+    showMessage(
+      document.getElementById("loadMessage"),
+      "Erro ao carregar inscrições. Verifique se sua conta tem permissão de administrador no Supabase.",
+      "error"
+    );
     return;
   }
 
-  inscriptions = data || [];
-
-  document.getElementById("countPending").textContent =
-    inscriptions.filter(p => !p.status || p.status === "Pendente").length;
-
-  document.getElementById("countApproved").textContent =
-    inscriptions.filter(p => p.status === "Aprovado").length;
-
-  document.getElementById("countRejected").textContent =
-    inscriptions.filter(p => p.status === "Reprovado").length;
-
-  document.getElementById("total").textContent =
-    "Total: " + inscriptions.length + " inscrições";
-
+  players = data || [];
+  updateCounts();
   renderPlayers();
 }
 
-async function changeStatus(id, status) {
-  const confirmation = confirm(
-    "Deseja realmente alterar o status para " + status + "?"
-  );
+function updateCounts() {
+  document.getElementById("countPending").textContent =
+    players.filter(p => p.status === "Pendente").length;
 
-  if (!confirmation) return;
+  document.getElementById("countApproved").textContent =
+    players.filter(p => p.status === "Aprovado").length;
 
-  const { error } = await client
-    .from("inscricoes_rlk")
-    .update({ status })
-    .eq("id", id);
-
-  if (error) {
-    alert("Erro ao alterar status: " + error.message);
-    return;
-  }
-
-  await loadPlayers();
+  document.getElementById("countRejected").textContent =
+    players.filter(p => p.status === "Reprovado").length;
 }
 
-document.getElementById("loginBtn").onclick = async () => {
-  const message = document.getElementById("message");
-  message.textContent = "Verificando acesso...";
+function renderPlayers() {
+  const search = searchInput.value.trim().toLowerCase();
 
-  const { error } = await client.auth.signInWithPassword({
-    email: document.getElementById("email").value,
-    password: document.getElementById("password").value
+  const filtered = players.filter(player => {
+    if (player.status !== currentTab) return false;
+
+    const searchable = [
+      player.nick,
+      player.jogador_id,
+      player.cidade,
+      player.whatsapp
+    ].join(" ").toLowerCase();
+
+    return searchable.includes(search);
   });
 
-  if (error) {
-    message.textContent = "Não foi possível entrar. Confira e-mail e senha.";
+  if (!filtered.length) {
+    playerList.innerHTML = '<div class="empty">Nenhuma inscrição encontrada nesta aba.</div>';
     return;
   }
 
-  loginBox.classList.add("hidden");
-  dashboard.classList.remove("hidden");
-  await loadPlayers();
-};
+  playerList.innerHTML = filtered.map(player => {
+    const whatsapp = String(player.whatsapp || "").replace(/\D/g, "");
+    const whatsappNumber = whatsapp.startsWith("55") ? whatsapp : "55" + whatsapp;
+    const whatsappLink = whatsapp ? "https://wa.me/" + whatsappNumber : "";
 
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => {
-    currentFilter = tab.dataset.filter;
+    const details = Object.entries(labels).map(([key, label]) => `
+      <div class="detail-item">
+        <small>${escapeHTML(label)}</small>
+        <div>${escapeHTML(formatValue(key, player[key]))}</div>
+      </div>
+    `).join("");
 
-    document.querySelectorAll(".tab").forEach(item => {
-      item.classList.toggle("active", item === tab);
+    let actionButtons = "";
+
+    if (player.status === "Pendente") {
+      actionButtons = `
+        <button class="success" data-action="Aprovado" data-id="${escapeHTML(player.id)}">Aprovar</button>
+        <button class="danger" data-action="Reprovado" data-id="${escapeHTML(player.id)}">Reprovar</button>
+      `;
+    } else {
+      actionButtons = `
+        <button class="warning" data-action="Pendente" data-id="${escapeHTML(player.id)}">Voltar para pendentes</button>
+      `;
+    }
+
+    return `
+      <article class="player">
+        <div class="player-top">
+          <div>
+            <div class="player-name">${escapeHTML(player.nick || "Sem nick")}</div>
+            <div class="player-info">
+              ID: ${escapeHTML(player.jogador_id || "Não informado")}
+              · ${escapeHTML(player.idade ?? "—")} anos
+              · ${escapeHTML(player.cidade || "Cidade não informada")}
+              <br>
+              Função: ${escapeHTML(player.funcao || "Não informada")}
+            </div>
+          </div>
+
+          <span class="status ${escapeHTML(player.status)}">${escapeHTML(player.status)}</span>
+        </div>
+
+        <div class="player-actions">
+          <button class="secondary" data-details="${escapeHTML(player.id)}">Ver perfil completo</button>
+          ${actionButtons}
+        </div>
+
+        ${whatsapp ? `
+          <a class="whatsapp-link" href="${escapeHTML(whatsappLink)}" target="_blank" rel="noopener noreferrer">
+            Conversar no WhatsApp
+          </a>
+        ` : ""}
+
+        <div class="details" id="details-${escapeHTML(player.id)}">
+          <div class="details-grid">${details}</div>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
+document.querySelectorAll(".tab").forEach(button => {
+  button.addEventListener("click", () => {
+    currentTab = button.dataset.tab;
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.classList.toggle("active", tab === button);
     });
 
     renderPlayers();
   });
 });
 
-search.addEventListener("input", renderPlayers);
+searchInput.addEventListener("input", renderPlayers);
 
-document.getElementById("refreshBtn").onclick = loadPlayers;
+playerList.addEventListener("click", async event => {
+  const detailsButton = event.target.closest("[data-details]");
 
-document.getElementById("logoutBtn").onclick = async () => {
-  await client.auth.signOut();
-  dashboard.classList.add("hidden");
-  loginBox.classList.remove("hidden");
-  document.getElementById("password").value = "";
-  document.getElementById("message").textContent = "Você saiu do painel.";
-};
+  if (detailsButton) {
+    const id = detailsButton.dataset.details;
+    const details = document.getElementById("details-" + id);
+    details.classList.toggle("open");
+    detailsButton.textContent = details.classList.contains("open")
+      ? "Fechar perfil"
+      : "Ver perfil completo";
+    return;
+  }
 
-client.auth.getSession().then(({ data }) => {
-  if (data.session) {
-    loginBox.classList.add("hidden");
-    dashboard.classList.remove("hidden");
-    loadPlayers();
+  const actionButton = event.target.closest("[data-action]");
+
+  if (actionButton) {
+    const newStatus = actionButton.dataset.action;
+    const id = actionButton.dataset.id;
+
+    const confirmation = {
+      Aprovado: "Deseja aprovar este jogador?",
+      Reprovado: "Deseja reprovar este jogador?",
+      Pendente: "Deseja devolver este jogador para pendentes?"
+    };
+
+    if (!confirm(confirmation[newStatus])) return;
+
+    actionButton.disabled = true;
+
+    const { error } = await client
+      .from("inscricoes_rlk")
+      .update({ status: newStatus })
+      .eq("id", id);
+
+    if (error) {
+      alert("Não foi possível atualizar o status. Verifique as permissões do Supabase.");
+      actionButton.disabled = false;
+      return;
+    }
+
+    await loadPlayers();
   }
 });
+
+refreshBtn.addEventListener("click", loadPlayers);
+
+logoutBtn.addEventListener("click", async () => {
+  await client.auth.signOut();
+  players = [];
+  searchInput.value = "";
+  loginForm.reset();
+  clearMessage(loginMessage);
+  showLogin();
+});
 </script>
+
 </body>
 </html>
