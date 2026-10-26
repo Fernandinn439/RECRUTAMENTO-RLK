@@ -426,7 +426,8 @@ form.addEventListener('submit', async e => {
     horario: get('time'),
     microfone: get('mic'),
     motivacao: get('motivation'),
-    guilda_anterior: get('previous')
+    guilda_anterior: get('previous'),
+    status: 'Pendente'
   };
 
   try {
@@ -443,6 +444,7 @@ form.addEventListener('submit', async e => {
     success.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
   } catch (error) {
+    console.error('Erro ao enviar inscrição:', error);
     alert('Erro ao enviar inscrição: ' + error.message);
   } finally {
     submitButton.disabled = false;
