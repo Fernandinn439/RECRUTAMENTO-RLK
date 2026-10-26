@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RLK | Painel Administrativo</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -21,364 +20,82 @@
   --green:#20c77a;
   --yellow:#f0b429;
 }
-
-* { box-sizing:border-box; }
-
-body {
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:Arial, sans-serif;
-}
-
-button,input {
-  font:inherit;
-}
-
-.hidden { display:none !important; }
-
-header {
-  padding:20px;
-  border-bottom:1px solid var(--line);
-  background:#0d0e13;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:15px;
-  flex-wrap:wrap;
-}
-
-.logo {
-  font-size:25px;
-  font-weight:900;
-  letter-spacing:2px;
-}
-
-.logo span { color:var(--red); }
-
-.subtitle {
-  color:var(--muted);
-  font-size:12px;
-  margin-top:4px;
-}
-
-.container {
-  width:min(1200px,94%);
-  margin:28px auto;
-}
-
-.panel {
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:22px;
-}
-
-.login-area {
-  width:min(420px,92%);
-  margin:75px auto;
-}
-
-h1,h2,h3 { margin-top:0; }
-
-h1 { font-size:23px; }
-
-.muted {
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.5;
-}
-
-.field {
-  margin:17px 0;
-}
-
-label {
-  display:block;
-  margin-bottom:7px;
-  color:#c5c8d0;
-  font-size:13px;
-}
-
-input {
-  width:100%;
-  padding:13px;
-  background:#090a0e;
-  color:white;
-  border:1px solid var(--line);
-  border-radius:8px;
-  outline:none;
-}
-
-input:focus {
-  border-color:var(--red);
-}
-
-button {
-  border:0;
-  border-radius:8px;
-  padding:11px 15px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.15s;
-}
-
-button:disabled {
-  opacity:.5;
-  cursor:not-allowed;
-}
-
-.primary {
-  background:var(--red);
-  color:white;
-}
-
-.primary:hover { background:#d50e25; }
-
-.secondary {
-  background:#252936;
-  color:white;
-  border:1px solid var(--line);
-}
-
-.danger {
-  background:#57131d;
-  color:#ffb9c0;
-}
-
-.success {
-  background:#12452f;
-  color:#9ff0c5;
-}
-
-.warning {
-  background:#4c3911;
-  color:#ffe09a;
-}
-
-.full-button { width:100%; }
-
-.message {
-  margin-top:13px;
-  padding:11px;
-  border-radius:8px;
-  font-size:13px;
-  display:none;
-  line-height:1.5;
-}
-
-.message.error {
-  display:block;
-  background:#40151b;
-  color:#ffb9c0;
-}
-
-.message.ok {
-  display:block;
-  background:#123c2b;
-  color:#a6f0c7;
-}
-
-.top-actions {
-  display:flex;
-  gap:9px;
-  flex-wrap:wrap;
-}
-
-.stats {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:13px;
-  margin-bottom:20px;
-}
-
-.stat {
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:17px;
-}
-
-.stat small {
-  color:var(--muted);
-  font-size:12px;
-}
-
-.stat strong {
-  display:block;
-  font-size:28px;
-  margin-top:8px;
-}
-
-.tabs {
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin:20px 0;
-}
-
-.tab {
-  background:#171a22;
-  color:#c6cad3;
-  border:1px solid var(--line);
-}
-
-.tab.active {
-  background:var(--red-dark);
-  color:white;
-  border-color:var(--red);
-}
-
-.search {
-  margin-bottom:17px;
-}
-
-.player-list {
-  display:grid;
-  gap:13px;
-}
-
-.player {
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:17px;
-}
-
-.player-top {
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-  flex-wrap:wrap;
-}
-
-.player-name {
-  font-size:18px;
-  font-weight:bold;
-  overflow-wrap:anywhere;
-}
-
-.player-info {
-  color:var(--muted);
-  font-size:12px;
-  margin-top:7px;
-  line-height:1.6;
-}
-
-.status {
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:20px;
-  font-size:11px;
-  font-weight:bold;
-}
-
-.status.Pendente {
-  background:#49370f;
-  color:#ffdc84;
-}
-
-.status.Aprovado {
-  background:#10452e;
-  color:#8ef0bd;
-}
-
-.status.Reprovado {
-  background:#501923;
-  color:#ffabb6;
-}
-
-.player-actions {
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:15px;
-}
-
-.player-actions button {
-  font-size:12px;
-}
-
-.details {
-  display:none;
-  border-top:1px solid var(--line);
-  margin-top:16px;
-  padding-top:15px;
-}
-
-.details.open { display:block; }
-
-.details-grid {
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-}
-
-.detail-item {
-  background:#0b0d12;
-  border:1px solid #222630;
-  border-radius:8px;
-  padding:11px;
-  min-width:0;
-}
-
-.detail-item small {
-  display:block;
-  color:var(--muted);
-  font-size:11px;
-  margin-bottom:6px;
-}
-
-.detail-item div {
-  font-size:13px;
-  overflow-wrap:anywhere;
-  white-space:pre-wrap;
-}
-
-.empty {
-  padding:35px 15px;
-  text-align:center;
-  color:var(--muted);
-  background:var(--panel);
-  border:1px dashed var(--line);
-  border-radius:12px;
-}
-
-.whatsapp-link {
-  display:inline-block;
-  margin-top:12px;
-  padding:10px 13px;
-  border-radius:8px;
-  background:#126b43;
-  color:white;
-  text-decoration:none;
-  font-weight:bold;
-  font-size:13px;
-}
-
-.loading {
-  color:var(--muted);
-  padding:20px 0;
-}
-
-@media(max-width:650px) {
-  .stats { grid-template-columns:1fr; }
-  .details-grid { grid-template-columns:1fr; }
-  .container { margin:18px auto; }
-  .panel { padding:17px; }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+button,input{font:inherit}
+.hidden{display:none!important}
+header{padding:20px;border-bottom:1px solid var(--line);background:#0d0e13;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.logo{font-size:25px;font-weight:900;letter-spacing:2px}
+.logo span{color:var(--red)}
+.subtitle{color:var(--muted);font-size:12px;margin-top:4px}
+.container{width:min(1200px,94%);margin:28px auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+.login-area{width:min(420px,92%);margin:75px auto}
+h1,h2,h3{margin-top:0}
+h1{font-size:23px}
+.muted{color:var(--muted);font-size:13px;line-height:1.5}
+.field{margin:17px 0}
+label{display:block;margin-bottom:7px;color:#c5c8d0;font-size:13px}
+input{width:100%;padding:13px;background:#090a0e;color:white;border:1px solid var(--line);border-radius:8px;outline:none}
+input:focus{border-color:var(--red)}
+button{border:0;border-radius:8px;padding:11px 15px;font-weight:bold;cursor:pointer;transition:.15s}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--red);color:white}
+.primary:hover{background:#d50e25}
+.secondary{background:#252936;color:white;border:1px solid var(--line)}
+.danger{background:#57131d;color:#ffb9c0}
+.success{background:#12452f;color:#9ff0c5}
+.warning{background:#4c3911;color:#ffe09a}
+.full-button{width:100%}
+.text-button{background:none;color:#ff6575;padding:12px 0 0;font-size:13px}
+.text-button:hover{text-decoration:underline}
+.message{margin-top:13px;padding:11px;border-radius:8px;font-size:13px;display:none;line-height:1.5;overflow-wrap:anywhere}
+.message.error{display:block;background:#40151b;color:#ffb9c0}
+.message.ok{display:block;background:#123c2b;color:#a6f0c7}
+.top-actions{display:flex;gap:9px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:20px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px}
+.stat small{color:var(--muted);font-size:12px}
+.stat strong{display:block;font-size:28px;margin-top:8px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
+.tab{background:#171a22;color:#c6cad3;border:1px solid var(--line)}
+.tab.active{background:var(--red-dark);color:white;border-color:var(--red)}
+.search{margin-bottom:17px}
+.player-list{display:grid;gap:13px}
+.player{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px}
+.player-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.player-name{font-size:18px;font-weight:bold;overflow-wrap:anywhere}
+.player-info{color:var(--muted);font-size:12px;margin-top:7px;line-height:1.6}
+.status{display:inline-block;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:bold}
+.status.Pendente{background:#49370f;color:#ffdc84}
+.status.Aprovado{background:#10452e;color:#8ef0bd}
+.status.Reprovado{background:#501923;color:#ffabb6}
+.player-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+.player-actions button{font-size:12px}
+.details{display:none;border-top:1px solid var(--line);margin-top:16px;padding-top:15px}
+.details.open{display:block}
+.details-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.detail-item{background:#0b0d12;border:1px solid #222630;border-radius:8px;padding:11px;min-width:0}
+.detail-item small{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}
+.detail-item div{font-size:13px;overflow-wrap:anywhere;white-space:pre-wrap}
+.empty{padding:35px 15px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:12px}
+.whatsapp-link{display:inline-block;margin-top:12px;padding:10px 13px;border-radius:8px;background:#126b43;color:white;text-decoration:none;font-weight:bold;font-size:13px}
+.loading{color:var(--muted);padding:20px 0}
+@media(max-width:650px){
+.stats{grid-template-columns:1fr}
+.details-grid{grid-template-columns:1fr}
+.container{margin:18px auto}
+.panel{padding:17px}
 }
 </style>
 </head>
 
 <body>
-
 <header>
   <div>
     <div class="logo">RLK <span>ADMIN</span></div>
     <div class="subtitle">Painel de gerenciamento de recrutamento</div>
   </div>
-
   <div class="top-actions">
     <button id="refreshBtn" class="secondary hidden">Atualizar</button>
     <button id="logoutBtn" class="danger hidden">Sair da conta</button>
@@ -396,18 +113,17 @@ button:disabled {
         <label for="email">E-mail</label>
         <input id="email" type="email" autocomplete="username" required placeholder="Seu e-mail">
       </div>
-
       <div class="field">
         <label for="password">Senha</label>
         <input id="password" type="password" autocomplete="current-password" required placeholder="Sua senha">
       </div>
-
-      <button id="loginBtn" class="primary full-button" type="submit">
-        Entrar no painel
-      </button>
-
+      <button id="loginBtn" class="primary full-button" type="submit">Entrar no painel</button>
       <div id="loginMessage" class="message"></div>
     </form>
+
+    <button id="forgotBtn" class="text-button full-button" type="button">
+      Esqueci minha senha
+    </button>
 
     <p class="muted" style="margin-top:18px">
       Acesso restrito aos administradores autorizados.
@@ -415,49 +131,66 @@ button:disabled {
   </div>
 </main>
 
+<!-- RECUPERAR SENHA -->
+<main id="forgotBox" class="login-area hidden">
+  <div class="panel">
+    <h1>Recuperar senha</h1>
+    <p class="muted">Informe o e-mail cadastrado na conta administradora. Enviaremos um link para criar uma nova senha.</p>
+    <form id="forgotForm">
+      <div class="field">
+        <label for="forgotEmail">E-mail da conta</label>
+        <input id="forgotEmail" type="email" required placeholder="Seu e-mail">
+      </div>
+      <button id="forgotSubmit" class="primary full-button" type="submit">Enviar recuperação</button>
+      <div id="forgotMessage" class="message"></div>
+    </form>
+    <button id="backLoginBtn" class="text-button full-button" type="button">Voltar ao login</button>
+  </div>
+</main>
+
+<!-- NOVA SENHA -->
+<main id="resetBox" class="login-area hidden">
+  <div class="panel">
+    <h1>Criar nova senha</h1>
+    <p class="muted">Escolha uma nova senha para acessar o painel administrativo.</p>
+    <form id="resetForm">
+      <div class="field">
+        <label for="newPassword">Nova senha</label>
+        <input id="newPassword" type="password" minlength="6" required autocomplete="new-password" placeholder="Mínimo de 6 caracteres">
+      </div>
+      <div class="field">
+        <label for="confirmPassword">Confirmar nova senha</label>
+        <input id="confirmPassword" type="password" minlength="6" required autocomplete="new-password" placeholder="Digite novamente">
+      </div>
+      <button id="resetSubmit" class="primary full-button" type="submit">Salvar nova senha</button>
+      <div id="resetMessage" class="message"></div>
+    </form>
+  </div>
+</main>
+
 <!-- PAINEL -->
 <main id="dashboard" class="container hidden">
-
   <div style="margin-bottom:20px">
     <h1>Gerenciar inscrições</h1>
     <p class="muted">Visualize, pesquise e atualize os candidatos da RLK.</p>
   </div>
 
   <section class="stats">
-    <div class="stat">
-      <small>PENDENTES</small>
-      <strong id="countPending">0</strong>
-    </div>
-
-    <div class="stat">
-      <small>APROVADOS</small>
-      <strong id="countApproved">0</strong>
-    </div>
-
-    <div class="stat">
-      <small>REPROVADOS</small>
-      <strong id="countRejected">0</strong>
-    </div>
+    <div class="stat"><small>PENDENTES</small><strong id="countPending">0</strong></div>
+    <div class="stat"><small>APROVADOS</small><strong id="countApproved">0</strong></div>
+    <div class="stat"><small>REPROVADOS</small><strong id="countRejected">0</strong></div>
   </section>
 
   <section class="panel">
-    <input
-      id="searchInput"
-      class="search"
-      type="search"
-      placeholder="Pesquisar por nick, ID, cidade ou WhatsApp..."
-    >
-
+    <input id="searchInput" class="search" type="search" placeholder="Pesquisar por nick, ID, cidade ou WhatsApp...">
     <div class="tabs">
       <button class="tab active" data-tab="Pendente">Pendentes</button>
       <button class="tab" data-tab="Aprovado">Aprovados</button>
       <button class="tab" data-tab="Reprovado">Reprovados</button>
     </div>
-
     <div id="playerList" class="player-list">
       <div class="loading">Carregando inscrições...</div>
     </div>
-
     <div id="loadMessage" class="message"></div>
   </section>
 </main>
@@ -471,62 +204,67 @@ const client = window.supabase.createClient(
   SUPABASE_KEY,
   {
     auth: {
-      persistSession: false,
+      persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: false
+      detectSessionInUrl: true
     }
   }
 );
 
-const loginBox = document.getElementById("loginBox");
-const dashboard = document.getElementById("dashboard");
-const loginForm = document.getElementById("loginForm");
-const loginBtn = document.getElementById("loginBtn");
-const loginMessage = document.getElementById("loginMessage");
-const playerList = document.getElementById("playerList");
-const searchInput = document.getElementById("searchInput");
-const refreshBtn = document.getElementById("refreshBtn");
-const logoutBtn = document.getElementById("logoutBtn");
+const $ = id => document.getElementById(id);
+
+const loginBox = $("loginBox");
+const forgotBox = $("forgotBox");
+const resetBox = $("resetBox");
+const dashboard = $("dashboard");
+const loginForm = $("loginForm");
+const loginBtn = $("loginBtn");
+const loginMessage = $("loginMessage");
+const playerList = $("playerList");
+const searchInput = $("searchInput");
+const refreshBtn = $("refreshBtn");
+const logoutBtn = $("logoutBtn");
 
 let players = [];
 let currentTab = "Pendente";
+let recoveryMode = false;
 
 const labels = {
-  nick: "Nick",
-  jogador_id: "ID do jogador",
-  idade: "Idade",
-  cidade: "Cidade",
-  funcao: "Função principal",
-  patente: "Patente",
-  experiencia: "Experiência no jogo",
-  competitivo: "Experiência competitiva",
-  experiencia_guerra: "Experiência em guerra",
-  nivel_guerra: "Nível em guerra",
-  funcao_guerra: "Função na guerra",
-  chamadas: "Participação em chamadas",
-  treino: "Disponibilidade para treino",
-  comunicacao: "Comunicação",
-  detalhes_guerra: "Detalhes sobre guerras",
-  situacao_guerra: "Situação em guerras",
-  dias: "Dias disponíveis",
-  horario: "Horário disponível",
-  microfone: "Possui microfone?",
-  motivacao: "Por que quer entrar na RLK?",
-  guilda_anterior: "Guilda anterior",
-  whatsapp: "WhatsApp",
-  criado_em: "Data da inscrição"
+  nick:"Nick",
+  jogador_id:"ID do jogador",
+  idade:"Idade",
+  cidade:"Cidade",
+  funcao:"Função principal",
+  patente:"Patente",
+  experiencia:"Experiência no jogo",
+  competitivo:"Experiência competitiva",
+  experiencia_guerra:"Experiência em guerra",
+  nivel_guerra:"Nível em guerra",
+  funcao_guerra:"Função na guerra",
+  chamadas:"Participação em chamadas",
+  treino:"Disponibilidade para treino",
+  comunicacao:"Comunicação",
+  detalhes_guerra:"Detalhes sobre guerras",
+  situacao_guerra:"Situação em guerras",
+  dias:"Dias disponíveis",
+  horario:"Horário disponível",
+  microfone:"Possui microfone?",
+  motivacao:"Por que quer entrar na RLK?",
+  guilda_anterior:"Guilda anterior",
+  whatsapp:"WhatsApp",
+  criado_em:"Data da inscrição"
 };
 
 function escapeHTML(value) {
   return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
-function showMessage(element, text, type) {
+function showMessage(element,text,type) {
   element.textContent = text;
   element.className = "message " + type;
 }
@@ -536,62 +274,57 @@ function clearMessage(element) {
   element.className = "message";
 }
 
-function formatValue(key, value) {
-  if (value === null || value === undefined || value === "") {
-    return "Não informado";
-  }
-
-  if (key === "dias" && Array.isArray(value)) {
-    return value.join(", ");
-  }
-
-  if (key === "criado_em") {
-    const date = new Date(value);
-    return isNaN(date) ? value : date.toLocaleString("pt-BR");
-  }
-
-  return Array.isArray(value) ? value.join(", ") : String(value);
+function showOnly(box) {
+  [loginBox,forgotBox,resetBox,dashboard].forEach(el => el.classList.add("hidden"));
+  box.classList.remove("hidden");
+  refreshBtn.classList.add("hidden");
+  logoutBtn.classList.add("hidden");
 }
 
 function showDashboard() {
-  loginBox.classList.add("hidden");
-  dashboard.classList.remove("hidden");
+  showOnly(dashboard);
   refreshBtn.classList.remove("hidden");
   logoutBtn.classList.remove("hidden");
 }
 
 function showLogin() {
-  dashboard.classList.add("hidden");
-  loginBox.classList.remove("hidden");
-  refreshBtn.classList.add("hidden");
-  logoutBtn.classList.add("hidden");
+  recoveryMode = false;
+  showOnly(loginBox);
 }
 
-loginForm.addEventListener("submit", async function(event) {
+function formatValue(key,value) {
+  if(value === null || value === undefined || value === "") return "Não informado";
+  if(key === "dias" && Array.isArray(value)) return value.join(", ");
+  if(key === "criado_em") {
+    const date = new Date(value);
+    return isNaN(date) ? value : date.toLocaleString("pt-BR");
+  }
+  return Array.isArray(value) ? value.join(", ") : String(value);
+}
+
+// LOGIN
+loginForm.addEventListener("submit",async event => {
   event.preventDefault();
   clearMessage(loginMessage);
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
+  const email = $("email").value.trim();
+  const password = $("password").value;
 
   loginBtn.disabled = true;
   loginBtn.textContent = "Verificando...";
 
-  const { data, error } = await client.auth.signInWithPassword({
-    email,
-    password
-  });
+  const {data,error} = await client.auth.signInWithPassword({email,password});
 
   loginBtn.disabled = false;
   loginBtn.textContent = "Entrar no painel";
 
-  if (error) {
-    showMessage(loginMessage, "Não foi possível entrar. Confira o e-mail e a senha.", "error");
+  if(error) {
+    showMessage(loginMessage,"Não foi possível entrar. Confira o e-mail e a senha.","error");
     return;
   }
 
-  if (!data.session) {
-    showMessage(loginMessage, "Não foi possível iniciar a sessão.", "error");
+  if(!data.session) {
+    showMessage(loginMessage,"Não foi possível iniciar a sessão.","error");
     return;
   }
 
@@ -599,22 +332,109 @@ loginForm.addEventListener("submit", async function(event) {
   await loadPlayers();
 });
 
+// ABRIR TELA DE RECUPERAÇÃO
+$("forgotBtn").addEventListener("click",() => {
+  $("forgotEmail").value = $("email").value.trim();
+  clearMessage($("forgotMessage"));
+  showOnly(forgotBox);
+});
+
+$("backLoginBtn").addEventListener("click",showLogin);
+
+// ENVIAR E-MAIL DE RECUPERAÇÃO
+$("forgotForm").addEventListener("submit",async event => {
+  event.preventDefault();
+
+  const email = $("forgotEmail").value.trim();
+  const button = $("forgotSubmit");
+  const message = $("forgotMessage");
+
+  clearMessage(message);
+  button.disabled = true;
+  button.textContent = "Enviando...";
+
+  const redirectTo = window.location.origin + window.location.pathname;
+
+  const {error} = await client.auth.resetPasswordForEmail(email,{
+    redirectTo
+  });
+
+  button.disabled = false;
+  button.textContent = "Enviar recuperação";
+
+  if(error) {
+    showMessage(message,"Erro ao enviar: " + error.message,"error");
+    return;
+  }
+
+  showMessage(message,"Se o e-mail estiver cadastrado, você receberá um link de recuperação. Confira também a caixa de spam.","ok");
+});
+
+// IDENTIFICAR LINK DE RECUPERAÇÃO
+client.auth.onAuthStateChange((event,session) => {
+  if(event === "PASSWORD_RECOVERY") {
+    recoveryMode = true;
+    clearMessage($("resetMessage"));
+    showOnly(resetBox);
+  }
+});
+
+// SALVAR NOVA SENHA
+$("resetForm").addEventListener("submit",async event => {
+  event.preventDefault();
+
+  const password = $("newPassword").value;
+  const confirmation = $("confirmPassword").value;
+  const button = $("resetSubmit");
+  const message = $("resetMessage");
+
+  clearMessage(message);
+
+  if(password.length < 6) {
+    showMessage(message,"A senha precisa ter pelo menos 6 caracteres.","error");
+    return;
+  }
+
+  if(password !== confirmation) {
+    showMessage(message,"As senhas não são iguais.","error");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Salvando...";
+
+  const {error} = await client.auth.updateUser({password});
+
+  button.disabled = false;
+  button.textContent = "Salvar nova senha";
+
+  if(error) {
+    showMessage(message,"Não foi possível alterar a senha: " + error.message,"error");
+    return;
+  }
+
+  await client.auth.signOut();
+  $("resetForm").reset();
+  $("loginForm").reset();
+  clearMessage(loginMessage);
+  recoveryMode = false;
+  showLogin();
+  showMessage(loginMessage,"Senha alterada com sucesso! Entre com sua nova senha.","ok");
+});
+
+// CARREGAR INSCRIÇÕES
 async function loadPlayers() {
   playerList.innerHTML = '<div class="loading">Carregando inscrições...</div>';
-  clearMessage(document.getElementById("loadMessage"));
+  clearMessage($("loadMessage"));
 
-  const { data, error } = await client
+  const {data,error} = await client
     .from("inscricoes_rlk")
     .select("*")
-    .order("criado_em", { ascending: false });
+    .order("criado_em",{ascending:false});
 
-  if (error) {
+  if(error) {
     playerList.innerHTML = "";
-    showMessage(
-      document.getElementById("loadMessage"),
-      "Erro ao carregar inscrições. Verifique se sua conta tem permissão de administrador no Supabase.",
-      "error"
-    );
+    showMessage($("loadMessage"),"Erro ao carregar inscrições. Verifique as permissões de administrador no Supabase.","error");
     return;
   }
 
@@ -624,52 +444,45 @@ async function loadPlayers() {
 }
 
 function updateCounts() {
-  document.getElementById("countPending").textContent =
-    players.filter(p => p.status === "Pendente").length;
-
-  document.getElementById("countApproved").textContent =
-    players.filter(p => p.status === "Aprovado").length;
-
-  document.getElementById("countRejected").textContent =
-    players.filter(p => p.status === "Reprovado").length;
+  $("countPending").textContent = players.filter(p => p.status === "Pendente").length;
+  $("countApproved").textContent = players.filter(p => p.status === "Aprovado").length;
+  $("countRejected").textContent = players.filter(p => p.status === "Reprovado").length;
 }
 
 function renderPlayers() {
   const search = searchInput.value.trim().toLowerCase();
 
   const filtered = players.filter(player => {
-    if (player.status !== currentTab) return false;
-
+    if(player.status !== currentTab) return false;
     const searchable = [
       player.nick,
       player.jogador_id,
       player.cidade,
       player.whatsapp
     ].join(" ").toLowerCase();
-
     return searchable.includes(search);
   });
 
-  if (!filtered.length) {
+  if(!filtered.length) {
     playerList.innerHTML = '<div class="empty">Nenhuma inscrição encontrada nesta aba.</div>';
     return;
   }
 
   playerList.innerHTML = filtered.map(player => {
-    const whatsapp = String(player.whatsapp || "").replace(/\D/g, "");
+    const whatsapp = String(player.whatsapp || "").replace(/\D/g,"");
     const whatsappNumber = whatsapp.startsWith("55") ? whatsapp : "55" + whatsapp;
     const whatsappLink = whatsapp ? "https://wa.me/" + whatsappNumber : "";
 
-    const details = Object.entries(labels).map(([key, label]) => `
+    const details = Object.entries(labels).map(([key,label]) => `
       <div class="detail-item">
         <small>${escapeHTML(label)}</small>
-        <div>${escapeHTML(formatValue(key, player[key]))}</div>
+        <div>${escapeHTML(formatValue(key,player[key]))}</div>
       </div>
     `).join("");
 
     let actionButtons = "";
 
-    if (player.status === "Pendente") {
+    if(player.status === "Pendente") {
       actionButtons = `
         <button class="success" data-action="Aprovado" data-id="${escapeHTML(player.id)}">Aprovar</button>
         <button class="danger" data-action="Reprovado" data-id="${escapeHTML(player.id)}">Reprovar</button>
@@ -693,21 +506,17 @@ function renderPlayers() {
               Função: ${escapeHTML(player.funcao || "Não informada")}
             </div>
           </div>
-
           <span class="status ${escapeHTML(player.status)}">${escapeHTML(player.status)}</span>
         </div>
-
         <div class="player-actions">
           <button class="secondary" data-details="${escapeHTML(player.id)}">Ver perfil completo</button>
           ${actionButtons}
         </div>
-
         ${whatsapp ? `
           <a class="whatsapp-link" href="${escapeHTML(whatsappLink)}" target="_blank" rel="noopener noreferrer">
             Conversar no WhatsApp
           </a>
         ` : ""}
-
         <div class="details" id="details-${escapeHTML(player.id)}">
           <div class="details-grid">${details}</div>
         </div>
@@ -716,24 +525,24 @@ function renderPlayers() {
   }).join("");
 }
 
+// ABAS
 document.querySelectorAll(".tab").forEach(button => {
-  button.addEventListener("click", () => {
+  button.addEventListener("click",() => {
     currentTab = button.dataset.tab;
-
     document.querySelectorAll(".tab").forEach(tab => {
-      tab.classList.toggle("active", tab === button);
+      tab.classList.toggle("active",tab === button);
     });
-
     renderPlayers();
   });
 });
 
-searchInput.addEventListener("input", renderPlayers);
+searchInput.addEventListener("input",renderPlayers);
 
-playerList.addEventListener("click", async event => {
+// AÇÕES DOS JOGADORES
+playerList.addEventListener("click",async event => {
   const detailsButton = event.target.closest("[data-details]");
 
-  if (detailsButton) {
+  if(detailsButton) {
     const id = detailsButton.dataset.details;
     const details = document.getElementById("details-" + id);
     details.classList.toggle("open");
@@ -745,26 +554,26 @@ playerList.addEventListener("click", async event => {
 
   const actionButton = event.target.closest("[data-action]");
 
-  if (actionButton) {
+  if(actionButton) {
     const newStatus = actionButton.dataset.action;
     const id = actionButton.dataset.id;
 
     const confirmation = {
-      Aprovado: "Deseja aprovar este jogador?",
-      Reprovado: "Deseja reprovar este jogador?",
-      Pendente: "Deseja devolver este jogador para pendentes?"
+      Aprovado:"Deseja aprovar este jogador?",
+      Reprovado:"Deseja reprovar este jogador?",
+      Pendente:"Deseja devolver este jogador para pendentes?"
     };
 
-    if (!confirm(confirmation[newStatus])) return;
+    if(!confirm(confirmation[newStatus])) return;
 
     actionButton.disabled = true;
 
-    const { error } = await client
+    const {error} = await client
       .from("inscricoes_rlk")
-      .update({ status: newStatus })
-      .eq("id", id);
+      .update({status:newStatus})
+      .eq("id",id);
 
-    if (error) {
+    if(error) {
       alert("Não foi possível atualizar o status. Verifique as permissões do Supabase.");
       actionButton.disabled = false;
       return;
@@ -774,9 +583,9 @@ playerList.addEventListener("click", async event => {
   }
 });
 
-refreshBtn.addEventListener("click", loadPlayers);
+refreshBtn.addEventListener("click",loadPlayers);
 
-logoutBtn.addEventListener("click", async () => {
+logoutBtn.addEventListener("click",async () => {
   await client.auth.signOut();
   players = [];
   searchInput.value = "";
@@ -784,7 +593,35 @@ logoutBtn.addEventListener("click", async () => {
   clearMessage(loginMessage);
   showLogin();
 });
-</script>
 
+// RESTAURAR SESSÃO NORMAL AO ABRIR O PAINEL
+async function initialize() {
+  const {data,error} = await client.auth.getSession();
+
+  if(error) {
+    showLogin();
+    return;
+  }
+
+  const hash = window.location.hash;
+  const isRecoveryLink = hash.includes("type=recovery") ||
+    new URLSearchParams(window.location.search).get("type") === "recovery";
+
+  if(isRecoveryLink) {
+    recoveryMode = true;
+    showOnly(resetBox);
+    return;
+  }
+
+  if(data.session) {
+    showDashboard();
+    await loadPlayers();
+  } else {
+    showLogin();
+  }
+}
+
+initialize();
+</script>
 </body>
 </html>
