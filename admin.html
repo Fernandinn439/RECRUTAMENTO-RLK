@@ -57,6 +57,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px}
 .stat small{color:var(--muted);font-size:12px}
 .stat strong{display:block;font-size:28px;margin-top:8px}
+.stats-title{font-size:12px;color:var(--muted);letter-spacing:1px;margin:22px 0 10px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
 .tab{background:#171a22;color:#c6cad3;border:1px solid var(--line)}
 .tab.active{background:var(--red-dark);color:white;border-color:var(--red)}
@@ -81,8 +82,22 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .empty{padding:35px 15px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:12px}
 .whatsapp-link{display:inline-block;margin-top:12px;padding:10px 13px;border-radius:8px;background:#126b43;color:white;text-decoration:none;font-weight:bold;font-size:13px}
 .loading{color:var(--muted);padding:20px 0}
+
+/* AVALIAÇÃO AUTOMÁTICA */
+.evaluation{margin-top:15px;padding:13px;border:1px solid var(--line);border-radius:9px;background:#0b0d12}
+.evaluation-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.evaluation-title{font-size:12px;color:var(--muted);font-weight:bold;letter-spacing:.7px}
+.eval-badge{display:inline-block;padding:7px 11px;border-radius:20px;font-size:11px;font-weight:bold}
+.eval-fit{background:#10452e;color:#8ef0bd}
+.eval-review{background:#49370f;color:#ffdc84}
+.eval-fail{background:#501923;color:#ffabb6}
+.eval-list{margin:12px 0 0;padding-left:18px;font-size:12px;color:#c6cad3;line-height:1.8}
+.eval-list li.pass{color:#8ef0bd}
+.eval-list li.warn{color:#ffdc84}
+.eval-list li.fail{color:#ffabb6}
+.eval-note{font-size:11px;color:var(--muted);margin-top:10px}
 @media(max-width:650px){
-.stats{grid-template-columns:1fr}
+.stats{grid-template-columns:1fr 1fr}
 .details-grid{grid-template-columns:1fr}
 .container{margin:18px auto}
 .panel{padding:17px}
@@ -121,9 +136,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <div id="loginMessage" class="message"></div>
     </form>
 
-    <button id="forgotBtn" class="text-button full-button" type="button">
-      Esqueci minha senha
-    </button>
+    <button id="forgotBtn" class="text-button full-button" type="button">Esqueci minha senha</button>
 
     <p class="muted" style="margin-top:18px">
       Acesso restrito aos administradores autorizados.
@@ -175,10 +188,18 @@ button:disabled{opacity:.5;cursor:not-allowed}
     <p class="muted">Visualize, pesquise e atualize os candidatos da RLK.</p>
   </div>
 
+  <div class="stats-title">STATUS DAS INSCRIÇÕES</div>
   <section class="stats">
     <div class="stat"><small>PENDENTES</small><strong id="countPending">0</strong></div>
     <div class="stat"><small>APROVADOS</small><strong id="countApproved">0</strong></div>
     <div class="stat"><small>REPROVADOS</small><strong id="countRejected">0</strong></div>
+  </section>
+
+  <div class="stats-title">AVALIAÇÃO AUTOMÁTICA DOS CANDIDATOS</div>
+  <section class="stats">
+    <div class="stat"><small>ATENDEM AOS REQUISITOS</small><strong id="countFit">0</strong></div>
+    <div class="stat"><small>PRECISAM DE AVALIAÇÃO</small><strong id="countReview">0</strong></div>
+    <div class="stat"><small>NÃO ATENDEM</small><strong id="countFail">0</strong></div>
   </section>
 
   <section class="panel">
@@ -227,13 +248,14 @@ const logoutBtn = $("logoutBtn");
 
 let players = [];
 let currentTab = "Pendente";
-let recoveryMode = false;
 
 const labels = {
   nick:"Nick",
   jogador_id:"ID do jogador",
   idade:"Idade",
+  nivel_conta:"Nível da conta",
   cidade:"Cidade",
+  whatsapp:"WhatsApp",
   funcao:"Função principal",
   patente:"Patente",
   experiencia:"Experiência no jogo",
@@ -244,14 +266,18 @@ const labels = {
   chamadas:"Participação em chamadas",
   treino:"Disponibilidade para treino",
   comunicacao:"Comunicação",
+  disponibilidade_guerras:"Disponibilidade para guerras",
   detalhes_guerra:"Detalhes sobre guerras",
   situacao_guerra:"Situação em guerras",
   dias:"Dias disponíveis",
   horario:"Horário disponível",
   microfone:"Possui microfone?",
+  atividade:"Frequência de jogo",
+  acompanha_grupo:"Participa do grupo oficial",
+  line_organizada:"Disponibilidade para jogar em line",
   motivacao:"Por que quer entrar na RLK?",
   guilda_anterior:"Guilda anterior",
-  whatsapp:"WhatsApp",
+  compromisso_regras:"Compromisso com as regras",
   criado_em:"Data da inscrição"
 };
 
@@ -288,7 +314,6 @@ function showDashboard() {
 }
 
 function showLogin() {
-  recoveryMode = false;
   showOnly(loginBox);
 }
 
@@ -299,7 +324,163 @@ function formatValue(key,value) {
     const date = new Date(value);
     return isNaN(date) ? value : date.toLocaleString("pt-BR");
   }
+  if(key === "compromisso_regras") return value ? "Sim" : "Não";
   return Array.isArray(value) ? value.join(", ") : String(value);
+}
+
+/* AVALIAÇÃO AUTOMÁTICA */
+
+const rankScores = {
+  "Bronze":1,
+  "Prata":2,
+  "Ouro":3,
+  "Platina":4,
+  "Diamante IV":5,
+  "Diamante III":6,
+  "Diamante II":7,
+  "Diamante I":8,
+  "Mestre":9,
+  "Desafiante":10
+};
+
+function evaluatePlayer(player) {
+  const failures = [];
+  const reviews = [];
+  const passes = [];
+
+  const age = Number(player.idade);
+  const level = Number(player.nivel_conta);
+  const rank = player.patente;
+  const rankScore = rankScores[rank];
+
+  // IDADE
+  if(player.idade === null || player.idade === undefined || player.idade === "") {
+    reviews.push("Idade não informada.");
+  } else if(age < 14) {
+    failures.push("Idade abaixo do mínimo de 14 anos.");
+  } else {
+    passes.push("Idade dentro do requisito.");
+  }
+
+  // NÍVEL
+  if(player.nivel_conta === null || player.nivel_conta === undefined || player.nivel_conta === "") {
+    reviews.push("Nível da conta não informado.");
+  } else if(level < 40) {
+    failures.push("Nível da conta abaixo de 40.");
+  } else {
+    passes.push("Nível da conta atende ao mínimo.");
+  }
+
+  // PATENTE
+  if(!rank || rankScore === undefined) {
+    reviews.push("Patente não informada ou não reconhecida.");
+  } else if(rankScore < rankScores["Diamante III"]) {
+    failures.push("Patente abaixo de Diamante III.");
+  } else {
+    passes.push("Patente atende ao mínimo Diamante III.");
+  }
+
+  // GUERRAS
+  if(!player.disponibilidade_guerras) {
+    reviews.push("Disponibilidade para guerras não informada.");
+  } else if(player.disponibilidade_guerras === "Não") {
+    failures.push("Não tem disponibilidade para guerras.");
+  } else {
+    passes.push("Tem disponibilidade para guerras.");
+  }
+
+  // REGRAS
+  if(player.compromisso_regras === null || player.compromisso_regras === undefined) {
+    reviews.push("Compromisso com as regras não informado.");
+  } else if(player.compromisso_regras !== true) {
+    failures.push("Não confirmou o compromisso com as regras.");
+  } else {
+    passes.push("Confirmou o compromisso com as regras.");
+  }
+
+  // ATIVIDADE
+  if(!player.atividade) {
+    reviews.push("Frequência de jogo não informada.");
+  } else if(player.atividade === "Raramente") {
+    failures.push("Informou que joga raramente.");
+  } else if(player.atividade === "2 a 3 dias por semana") {
+    reviews.push("Joga de 2 a 3 dias por semana. Avaliar atividade.");
+  } else {
+    passes.push("Frequência de jogo adequada.");
+  }
+
+  // GRUPO OFICIAL
+  if(!player.acompanha_grupo) {
+    reviews.push("Participação no grupo oficial não informada.");
+  } else if(player.acompanha_grupo === "Não") {
+    failures.push("Não está disposto a acompanhar o grupo oficial.");
+  } else {
+    passes.push("Está disposto a acompanhar o grupo oficial.");
+  }
+
+  // LINE ORGANIZADA
+  if(!player.line_organizada) {
+    reviews.push("Disponibilidade para line não informada.");
+  } else if(player.line_organizada === "Sim, sempre que possível") {
+    passes.push("Está disposto a jogar com a line organizada.");
+  } else {
+    reviews.push("Disponibilidade para line precisa de avaliação.");
+  }
+
+  let category;
+  let title;
+
+  if(failures.length > 0) {
+    category = "fail";
+    title = "NÃO ATENDE AOS REQUISITOS";
+  } else if(reviews.length > 0) {
+    category = "review";
+    title = "PRECISA DE AVALIAÇÃO";
+  } else {
+    category = "fit";
+    title = "ATENDE AOS REQUISITOS";
+  }
+
+  return {category,title,failures,reviews,passes};
+}
+
+function evaluationHTML(player) {
+  const result = evaluatePlayer(player);
+
+  let items = "";
+
+  result.passes.forEach(item => {
+    items += `<li class="pass">✓ ${escapeHTML(item)}</li>`;
+  });
+
+  result.reviews.forEach(item => {
+    items += `<li class="warn">! ${escapeHTML(item)}</li>`;
+  });
+
+  result.failures.forEach(item => {
+    items += `<li class="fail">✕ ${escapeHTML(item)}</li>`;
+  });
+
+  if(!items) {
+    items = '<li class="pass">Todos os requisitos foram verificados.</li>';
+  }
+
+  const badgeClass = {
+    fit:"eval-fit",
+    review:"eval-review",
+    fail:"eval-fail"
+  }[result.category];
+
+  return `
+    <div class="evaluation">
+      <div class="evaluation-top">
+        <span class="evaluation-title">ANÁLISE AUTOMÁTICA</span>
+        <span class="eval-badge ${badgeClass}">${result.title}</span>
+      </div>
+      <ul class="eval-list">${items}</ul>
+      <div class="eval-note">Esta análise é uma ajuda para a administração. A decisão final continua sendo do administrador.</div>
+    </div>
+  `;
 }
 
 // LOGIN
@@ -332,7 +513,7 @@ loginForm.addEventListener("submit",async event => {
   await loadPlayers();
 });
 
-// ABRIR TELA DE RECUPERAÇÃO
+// RECUPERAÇÃO DE SENHA
 $("forgotBtn").addEventListener("click",() => {
   $("forgotEmail").value = $("email").value.trim();
   clearMessage($("forgotMessage"));
@@ -341,7 +522,6 @@ $("forgotBtn").addEventListener("click",() => {
 
 $("backLoginBtn").addEventListener("click",showLogin);
 
-// ENVIAR E-MAIL DE RECUPERAÇÃO
 $("forgotForm").addEventListener("submit",async event => {
   event.preventDefault();
 
@@ -370,10 +550,8 @@ $("forgotForm").addEventListener("submit",async event => {
   showMessage(message,"Se o e-mail estiver cadastrado, você receberá um link de recuperação. Confira também a caixa de spam.","ok");
 });
 
-// IDENTIFICAR LINK DE RECUPERAÇÃO
 client.auth.onAuthStateChange((event,session) => {
   if(event === "PASSWORD_RECOVERY") {
-    recoveryMode = true;
     clearMessage($("resetMessage"));
     showOnly(resetBox);
   }
@@ -417,7 +595,6 @@ $("resetForm").addEventListener("submit",async event => {
   $("resetForm").reset();
   $("loginForm").reset();
   clearMessage(loginMessage);
-  recoveryMode = false;
   showLogin();
   showMessage(loginMessage,"Senha alterada com sucesso! Entre com sua nova senha.","ok");
 });
@@ -447,6 +624,12 @@ function updateCounts() {
   $("countPending").textContent = players.filter(p => p.status === "Pendente").length;
   $("countApproved").textContent = players.filter(p => p.status === "Aprovado").length;
   $("countRejected").textContent = players.filter(p => p.status === "Reprovado").length;
+
+  const evaluations = players.map(evaluatePlayer);
+
+  $("countFit").textContent = evaluations.filter(e => e.category === "fit").length;
+  $("countReview").textContent = evaluations.filter(e => e.category === "review").length;
+  $("countFail").textContent = evaluations.filter(e => e.category === "fail").length;
 }
 
 function renderPlayers() {
@@ -454,12 +637,14 @@ function renderPlayers() {
 
   const filtered = players.filter(player => {
     if(player.status !== currentTab) return false;
+
     const searchable = [
       player.nick,
       player.jogador_id,
       player.cidade,
       player.whatsapp
     ].join(" ").toLowerCase();
+
     return searchable.includes(search);
   });
 
@@ -501,22 +686,29 @@ function renderPlayers() {
             <div class="player-info">
               ID: ${escapeHTML(player.jogador_id || "Não informado")}
               · ${escapeHTML(player.idade ?? "—")} anos
+              · Nível ${escapeHTML(player.nivel_conta ?? "—")}
               · ${escapeHTML(player.cidade || "Cidade não informada")}
               <br>
-              Função: ${escapeHTML(player.funcao || "Não informada")}
+              Patente: ${escapeHTML(player.patente || "Não informada")}
+              · Função: ${escapeHTML(player.funcao || "Não informada")}
             </div>
           </div>
           <span class="status ${escapeHTML(player.status)}">${escapeHTML(player.status)}</span>
         </div>
+
+        ${evaluationHTML(player)}
+
         <div class="player-actions">
           <button class="secondary" data-details="${escapeHTML(player.id)}">Ver perfil completo</button>
           ${actionButtons}
         </div>
+
         ${whatsapp ? `
           <a class="whatsapp-link" href="${escapeHTML(whatsappLink)}" target="_blank" rel="noopener noreferrer">
             Conversar no WhatsApp
           </a>
         ` : ""}
+
         <div class="details" id="details-${escapeHTML(player.id)}">
           <div class="details-grid">${details}</div>
         </div>
@@ -594,7 +786,7 @@ logoutBtn.addEventListener("click",async () => {
   showLogin();
 });
 
-// RESTAURAR SESSÃO NORMAL AO ABRIR O PAINEL
+// RESTAURAR SESSÃO
 async function initialize() {
   const {data,error} = await client.auth.getSession();
 
@@ -608,7 +800,6 @@ async function initialize() {
     new URLSearchParams(window.location.search).get("type") === "recovery";
 
   if(isRecoveryLink) {
-    recoveryMode = true;
     showOnly(resetBox);
     return;
   }
