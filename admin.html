@@ -99,6 +99,35 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .filter-field input,.filter-field select{padding:11px;font-size:13px}
 .filter-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:13px}
 .filter-result{font-size:12px;color:var(--muted);margin-left:auto}
+
+/* HISTÓRICO ADMINISTRATIVO */
+.history{
+  display:none;
+  margin-top:15px;
+  padding:15px;
+  background:#0b0d12;
+  border:1px solid var(--line);
+  border-radius:9px;
+}
+.history.open{display:block}
+.history-title{
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+.history-item{
+  border-left:3px solid var(--red);
+  padding:10px 12px;
+  margin:10px 0;
+  background:#111319;
+  border-radius:5px;
+  font-size:12px;
+  line-height:1.8;
+  overflow-wrap:anywhere;
+}
+.history-item small{color:var(--muted)}
+.history-empty{color:var(--muted);font-size:12px;padding:10px 0}
+
 @media(max-width:650px){
   .stats{grid-template-columns:1fr 1fr}
   .details-grid{grid-template-columns:1fr}
@@ -214,7 +243,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <button class="tab" data-tab="Reprovado">Reprovados</button>
     </div>
 
-    <!-- FILTROS INTELIGENTES -->
     <div class="filter-area">
       <div class="filter-heading">FILTROS INTELIGENTES</div>
 
@@ -593,9 +621,7 @@ function getFilteredPlayers(){
     ].join(" ").toLowerCase();
 
     if(search && !searchable.includes(search)) return false;
-
     if(evaluation && evaluatePlayer(player).category !== evaluation) return false;
-
     if(rank && player.patente !== rank) return false;
 
     const level = Number(player.nivel_conta);
@@ -840,6 +866,7 @@ function renderPlayers(){
 
         <div class="player-actions">
           <button class="secondary" data-details="${escapeHTML(player.id)}">Ver perfil completo</button>
+          <button class="secondary" data-history="${escapeHTML(player.id)}">Ver histórico</button>
           ${actionButtons}
         </div>
 
@@ -851,6 +878,11 @@ function renderPlayers(){
 
         <div class="details" id="details-${escapeHTML(player.id)}">
           <div class="details-grid">${details}</div>
+        </div>
+
+        <div class="history" id="history-${escapeHTML(player.id)}">
+          <div class="history-title">HISTÓRICO DE ALTERAÇÕES</div>
+          <div class="history-content history-empty">Clique em Ver histórico para carregar.</div>
         </div>
       </article>
     `;
@@ -889,6 +921,62 @@ document.querySelectorAll(".tab").forEach(button=>{
 searchInput.addEventListener("input",renderPlayers);
 $("clearFilters").addEventListener("click",clearFilters);
 
+/* CARREGAR HISTÓRICO */
+
+async function loadHistory(id){
+  const box = document.getElementById("history-" + id);
+  if(!box) return;
+
+  const content = box.querySelector(".history-content");
+  content.innerHTML = '<div class="history-empty">Carregando histórico...</div>';
+  box.classList.add("open");
+
+  const {data,error} = await client
+    .from("historico_rlk")
+    .select("*")
+    .eq("inscricao_id",id)
+    .order("criado_em",{ascending:false});
+
+  if(error){
+    content.innerHTML =
+      '<div class="history-empty">Não foi possível carregar o histórico: ' +
+      escapeHTML(error.message) + '</div>';
+    return;
+  }
+
+  if(!data || data.length === 0){
+    content.innerHTML =
+      '<div class="history-empty">Nenhuma alteração registrada ainda.</div>';
+    return;
+  }
+
+  const {data:userData} = await client.auth.getUser();
+  const currentUser = userData?.user;
+
+  content.innerHTML = data.map(item=>{
+    const date = new Date(item.criado_em);
+    const formattedDate = isNaN(date)
+      ? "Data não disponível"
+      : date.toLocaleString("pt-BR");
+
+    const adminName =
+      currentUser && item.administrador === currentUser.id
+        ? currentUser.email
+        : item.administrador || "Não identificado";
+
+    return `
+      <div class="history-item">
+        <strong>${escapeHTML(item.acao)}</strong><br>
+        <small>Data:</small> ${escapeHTML(formattedDate)}<br>
+        <small>Administrador:</small> ${escapeHTML(adminName)}<br>
+        <small>Status anterior:</small> ${escapeHTML(item.status_anterior || "Nenhum")}<br>
+        <small>Status novo:</small> ${escapeHTML(item.status_novo || "Nenhum")}<br>
+        <small>Observação:</small> ${escapeHTML(item.observacao || "Sem observação")}
+      </div>
+    `;
+  }).join("");
+}
+
 /* AÇÕES DOS JOGADORES */
 
 playerList.addEventListener("click",async event=>{
@@ -905,11 +993,34 @@ playerList.addEventListener("click",async event=>{
     return;
   }
 
+  const historyButton = event.target.closest("[data-history]");
+
+  if(historyButton){
+    const id = historyButton.dataset.history;
+    const historyBox = document.getElementById("history-" + id);
+
+    if(historyBox.classList.contains("open")){
+      historyBox.classList.remove("open");
+    }else{
+      await loadHistory(id);
+    }
+    return;
+  }
+
   const actionButton = event.target.closest("[data-action]");
 
   if(actionButton){
     const newStatus = actionButton.dataset.action;
     const id = actionButton.dataset.id;
+
+    const player = players.find(p => String(p.id) === String(id));
+
+    if(!player){
+      alert("Não foi possível localizar este candidato.");
+      return;
+    }
+
+    const oldStatus = player.status;
 
     const confirmation = {
       Aprovado:"Deseja aprovar este jogador?",
@@ -919,19 +1030,56 @@ playerList.addEventListener("click",async event=>{
 
     if(!confirm(confirmation[newStatus])) return;
 
+    const observation = prompt(
+      "Observação sobre esta alteração (opcional):"
+    );
+
+    if(observation === null) return;
+
     actionButton.disabled = true;
 
-    const {error} = await client
+    const {data:updatedPlayer,error:updateError} = await client
       .from("inscricoes_rlk")
       .update({status:newStatus})
-      .eq("id",id);
+      .eq("id",id)
+      .select("id,status")
+      .maybeSingle();
 
-    if(error){
+    if(updateError || !updatedPlayer){
       alert("Não foi possível atualizar o status. Verifique as permissões do Supabase.");
       actionButton.disabled = false;
       return;
     }
 
+    const {data:userData,error:userError} = await client.auth.getUser();
+
+    if(userError || !userData.user){
+      alert("O status foi atualizado, mas não foi possível identificar o administrador para registrar o histórico.");
+      await loadPlayers();
+      return;
+    }
+
+    const {error:historyError} = await client
+      .from("historico_rlk")
+      .insert({
+        inscricao_id:id,
+        administrador:userData.user.id,
+        acao:"Alteração de status",
+        status_anterior:oldStatus,
+        status_novo:newStatus,
+        observacao:observation.trim() || null
+      });
+
+    if(historyError){
+      alert(
+        "O status foi atualizado, mas o histórico não foi salvo.\n\nErro: " +
+        historyError.message
+      );
+      await loadPlayers();
+      return;
+    }
+
+    alert("Status atualizado e histórico registrado com sucesso!");
     await loadPlayers();
   }
 });
