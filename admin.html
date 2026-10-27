@@ -8,21 +8,15 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-  --red:#f0182d;
-  --red-dark:#a20b1c;
-  --bg:#08090c;
-  --panel:#111319;
-  --panel2:#171a22;
-  --line:#292d38;
-  --text:#f5f5f5;
-  --muted:#9298a5;
-  --green:#20c77a;
+:root{
+  --red:#f0182d;--red-dark:#a20b1c;--bg:#08090c;
+  --panel:#111319;--panel2:#171a22;--line:#292d38;
+  --text:#f5f5f5;--muted:#9298a5;--green:#20c77a;
   --yellow:#f0b429;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-button,input{font:inherit}
+button,input,select{font:inherit}
 .hidden{display:none!important}
 header{padding:20px;border-bottom:1px solid var(--line);background:#0d0e13;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
 .logo{font-size:25px;font-weight:900;letter-spacing:2px}
@@ -36,8 +30,8 @@ h1{font-size:23px}
 .muted{color:var(--muted);font-size:13px;line-height:1.5}
 .field{margin:17px 0}
 label{display:block;margin-bottom:7px;color:#c5c8d0;font-size:13px}
-input{width:100%;padding:13px;background:#090a0e;color:white;border:1px solid var(--line);border-radius:8px;outline:none}
-input:focus{border-color:var(--red)}
+input,select{width:100%;padding:13px;background:#090a0e;color:white;border:1px solid var(--line);border-radius:8px;outline:none}
+input:focus,select:focus{border-color:var(--red)}
 button{border:0;border-radius:8px;padding:11px 15px;font-weight:bold;cursor:pointer;transition:.15s}
 button:disabled{opacity:.5;cursor:not-allowed}
 .primary{background:var(--red);color:white}
@@ -61,7 +55,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0}
 .tab{background:#171a22;color:#c6cad3;border:1px solid var(--line)}
 .tab.active{background:var(--red-dark);color:white;border-color:var(--red)}
-.search{margin-bottom:17px}
+.search{margin-bottom:12px}
 .player-list{display:grid;gap:13px}
 .player{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:17px}
 .player-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
@@ -96,11 +90,25 @@ button:disabled{opacity:.5;cursor:not-allowed}
 .eval-list li.warn{color:#ffdc84}
 .eval-list li.fail{color:#ffabb6}
 .eval-note{font-size:11px;color:var(--muted);margin-top:10px}
+
+/* FILTROS */
+.filter-area{background:#0b0d12;border:1px solid var(--line);border-radius:10px;padding:15px;margin:8px 0 18px}
+.filter-heading{font-size:12px;color:#c5c8d0;font-weight:bold;letter-spacing:.7px;margin-bottom:13px}
+.filter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.filter-field label{font-size:11px;color:var(--muted)}
+.filter-field input,.filter-field select{padding:11px;font-size:13px}
+.filter-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:13px}
+.filter-result{font-size:12px;color:var(--muted);margin-left:auto}
 @media(max-width:650px){
-.stats{grid-template-columns:1fr 1fr}
-.details-grid{grid-template-columns:1fr}
-.container{margin:18px auto}
-.panel{padding:17px}
+  .stats{grid-template-columns:1fr 1fr}
+  .details-grid{grid-template-columns:1fr}
+  .container{margin:18px auto}
+  .panel{padding:17px}
+  .filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .filter-result{width:100%;margin-left:0}
+}
+@media(max-width:390px){
+  .filter-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -122,7 +130,6 @@ button:disabled{opacity:.5;cursor:not-allowed}
   <div class="panel">
     <h1>Área administrativa</h1>
     <p class="muted">Entre com o e-mail e a senha da conta administradora.</p>
-
     <form id="loginForm">
       <div class="field">
         <label for="email">E-mail</label>
@@ -135,12 +142,8 @@ button:disabled{opacity:.5;cursor:not-allowed}
       <button id="loginBtn" class="primary full-button" type="submit">Entrar no painel</button>
       <div id="loginMessage" class="message"></div>
     </form>
-
     <button id="forgotBtn" class="text-button full-button" type="button">Esqueci minha senha</button>
-
-    <p class="muted" style="margin-top:18px">
-      Acesso restrito aos administradores autorizados.
-    </p>
+    <p class="muted" style="margin-top:18px">Acesso restrito aos administradores autorizados.</p>
   </div>
 </main>
 
@@ -204,11 +207,73 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
   <section class="panel">
     <input id="searchInput" class="search" type="search" placeholder="Pesquisar por nick, ID, cidade ou WhatsApp...">
+
     <div class="tabs">
       <button class="tab active" data-tab="Pendente">Pendentes</button>
       <button class="tab" data-tab="Aprovado">Aprovados</button>
       <button class="tab" data-tab="Reprovado">Reprovados</button>
     </div>
+
+    <!-- FILTROS INTELIGENTES -->
+    <div class="filter-area">
+      <div class="filter-heading">FILTROS INTELIGENTES</div>
+
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label for="evaluationFilter">Avaliação automática</label>
+          <select id="evaluationFilter">
+            <option value="">Todas as avaliações</option>
+            <option value="fit">APTO</option>
+            <option value="review">PRECISA DE AVALIAÇÃO</option>
+            <option value="fail">NÃO ATENDE</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="rankFilter">Patente</label>
+          <select id="rankFilter">
+            <option value="">Todas as patentes</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="sortFilter">Ordenar por</label>
+          <select id="sortFilter">
+            <option value="newest">Mais recentes</option>
+            <option value="oldest">Mais antigos</option>
+            <option value="nick">Nick A–Z</option>
+            <option value="level">Maior nível</option>
+            <option value="age">Maior idade</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="minLevel">Nível mínimo</label>
+          <input id="minLevel" type="number" min="1" placeholder="Ex.: 40">
+        </div>
+
+        <div class="filter-field">
+          <label for="maxLevel">Nível máximo</label>
+          <input id="maxLevel" type="number" min="1" placeholder="Sem limite">
+        </div>
+
+        <div class="filter-field">
+          <label for="minAge">Idade mínima</label>
+          <input id="minAge" type="number" min="1" placeholder="Sem limite">
+        </div>
+
+        <div class="filter-field">
+          <label for="maxAge">Idade máxima</label>
+          <input id="maxAge" type="number" min="1" placeholder="Sem limite">
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button id="clearFilters" class="secondary" type="button">Limpar filtros</button>
+        <span id="filterResult" class="filter-result">Mostrando inscrições</span>
+      </div>
+    </div>
+
     <div id="playerList" class="player-list">
       <div class="loading">Carregando inscrições...</div>
     </div>
@@ -224,10 +289,10 @@ const client = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY,
   {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true
+    auth:{
+      persistSession:true,
+      autoRefreshToken:true,
+      detectSessionInUrl:true
     }
   }
 );
@@ -281,7 +346,7 @@ const labels = {
   criado_em:"Data da inscrição"
 };
 
-function escapeHTML(value) {
+function escapeHTML(value){
   return String(value ?? "")
     .replaceAll("&","&amp;")
     .replaceAll("<","&lt;")
@@ -290,37 +355,37 @@ function escapeHTML(value) {
     .replaceAll("'","&#039;");
 }
 
-function showMessage(element,text,type) {
+function showMessage(element,text,type){
   element.textContent = text;
   element.className = "message " + type;
 }
 
-function clearMessage(element) {
+function clearMessage(element){
   element.textContent = "";
   element.className = "message";
 }
 
-function showOnly(box) {
-  [loginBox,forgotBox,resetBox,dashboard].forEach(el => el.classList.add("hidden"));
+function showOnly(box){
+  [loginBox,forgotBox,resetBox,dashboard].forEach(el=>el.classList.add("hidden"));
   box.classList.remove("hidden");
   refreshBtn.classList.add("hidden");
   logoutBtn.classList.add("hidden");
 }
 
-function showDashboard() {
+function showDashboard(){
   showOnly(dashboard);
   refreshBtn.classList.remove("hidden");
   logoutBtn.classList.remove("hidden");
 }
 
-function showLogin() {
+function showLogin(){
   showOnly(loginBox);
 }
 
-function formatValue(key,value) {
+function formatValue(key,value){
   if(value === null || value === undefined || value === "") return "Não informado";
   if(key === "dias" && Array.isArray(value)) return value.join(", ");
-  if(key === "criado_em") {
+  if(key === "criado_em"){
     const date = new Date(value);
     return isNaN(date) ? value : date.toLocaleString("pt-BR");
   }
@@ -343,7 +408,7 @@ const rankScores = {
   "Desafiante":10
 };
 
-function evaluatePlayer(player) {
+function evaluatePlayer(player){
   const failures = [];
   const reviews = [];
   const passes = [];
@@ -353,90 +418,82 @@ function evaluatePlayer(player) {
   const rank = player.patente;
   const rankScore = rankScores[rank];
 
-  // IDADE
-  if(player.idade === null || player.idade === undefined || player.idade === "") {
+  if(player.idade === null || player.idade === undefined || player.idade === ""){
     reviews.push("Idade não informada.");
-  } else if(age < 14) {
+  }else if(age < 14){
     failures.push("Idade abaixo do mínimo de 14 anos.");
-  } else {
+  }else{
     passes.push("Idade dentro do requisito.");
   }
 
-  // NÍVEL
-  if(player.nivel_conta === null || player.nivel_conta === undefined || player.nivel_conta === "") {
+  if(player.nivel_conta === null || player.nivel_conta === undefined || player.nivel_conta === ""){
     reviews.push("Nível da conta não informado.");
-  } else if(level < 40) {
+  }else if(level < 40){
     failures.push("Nível da conta abaixo de 40.");
-  } else {
+  }else{
     passes.push("Nível da conta atende ao mínimo.");
   }
 
-  // PATENTE
-  if(!rank || rankScore === undefined) {
+  if(!rank || rankScore === undefined){
     reviews.push("Patente não informada ou não reconhecida.");
-  } else if(rankScore < rankScores["Diamante III"]) {
+  }else if(rankScore < rankScores["Diamante III"]){
     failures.push("Patente abaixo de Diamante III.");
-  } else {
+  }else{
     passes.push("Patente atende ao mínimo Diamante III.");
   }
 
-  // GUERRAS
-  if(!player.disponibilidade_guerras) {
+  if(!player.disponibilidade_guerras){
     reviews.push("Disponibilidade para guerras não informada.");
-  } else if(player.disponibilidade_guerras === "Não") {
+  }else if(player.disponibilidade_guerras === "Não"){
     failures.push("Não tem disponibilidade para guerras.");
-  } else {
+  }else{
     passes.push("Tem disponibilidade para guerras.");
   }
 
-  // REGRAS
-  if(player.compromisso_regras === null || player.compromisso_regras === undefined) {
+  if(player.compromisso_regras === null || player.compromisso_regras === undefined){
     reviews.push("Compromisso com as regras não informado.");
-  } else if(player.compromisso_regras !== true) {
+  }else if(player.compromisso_regras !== true){
     failures.push("Não confirmou o compromisso com as regras.");
-  } else {
+  }else{
     passes.push("Confirmou o compromisso com as regras.");
   }
 
-  // ATIVIDADE
-  if(!player.atividade) {
+  if(!player.atividade){
     reviews.push("Frequência de jogo não informada.");
-  } else if(player.atividade === "Raramente") {
+  }else if(player.atividade === "Raramente"){
     failures.push("Informou que joga raramente.");
-  } else if(player.atividade === "2 a 3 dias por semana") {
+  }else if(player.atividade === "2 a 3 dias por semana"){
     reviews.push("Joga de 2 a 3 dias por semana. Avaliar atividade.");
-  } else {
+  }else{
     passes.push("Frequência de jogo adequada.");
   }
 
-  // GRUPO OFICIAL
-  if(!player.acompanha_grupo) {
+  if(!player.acompanha_grupo){
     reviews.push("Participação no grupo oficial não informada.");
-  } else if(player.acompanha_grupo === "Não") {
+  }else if(player.acompanha_grupo === "Não"){
     failures.push("Não está disposto a acompanhar o grupo oficial.");
-  } else {
+  }else{
     passes.push("Está disposto a acompanhar o grupo oficial.");
   }
 
-  // LINE ORGANIZADA
-  if(!player.line_organizada) {
+  if(!player.line_organizada){
     reviews.push("Disponibilidade para line não informada.");
-  } else if(player.line_organizada === "Sim, sempre que possível") {
+  }else if(player.line_organizada === "Sim, sempre que possível"){
     passes.push("Está disposto a jogar com a line organizada.");
-  } else {
+  }else{
     reviews.push("Disponibilidade para line precisa de avaliação.");
   }
 
   let category;
   let title;
 
-  if(failures.length > 0) {
+  if(failures.length > 0){
     category = "fail";
     title = "NÃO ATENDE AOS REQUISITOS";
-  } else if(reviews.length > 0) {
+  }else if(reviews.length > 0){
     category = "review";
     title = "PRECISA DE AVALIAÇÃO";
-  } else {
+  }else{
     category = "fit";
     title = "ATENDE AOS REQUISITOS";
   }
@@ -444,26 +501,21 @@ function evaluatePlayer(player) {
   return {category,title,failures,reviews,passes};
 }
 
-function evaluationHTML(player) {
+function evaluationHTML(player){
   const result = evaluatePlayer(player);
-
   let items = "";
 
-  result.passes.forEach(item => {
+  result.passes.forEach(item=>{
     items += `<li class="pass">✓ ${escapeHTML(item)}</li>`;
   });
-
-  result.reviews.forEach(item => {
+  result.reviews.forEach(item=>{
     items += `<li class="warn">! ${escapeHTML(item)}</li>`;
   });
-
-  result.failures.forEach(item => {
+  result.failures.forEach(item=>{
     items += `<li class="fail">✕ ${escapeHTML(item)}</li>`;
   });
 
-  if(!items) {
-    items = '<li class="pass">Todos os requisitos foram verificados.</li>';
-  }
+  if(!items) items = '<li class="pass">Todos os requisitos foram verificados.</li>';
 
   const badgeClass = {
     fit:"eval-fit",
@@ -483,8 +535,102 @@ function evaluationHTML(player) {
   `;
 }
 
-// LOGIN
-loginForm.addEventListener("submit",async event => {
+/* FILTROS */
+
+function populateRankFilter(){
+  const select = $("rankFilter");
+  const currentValue = select.value;
+
+  const ranks = [...new Set(
+    players.map(p=>p.patente).filter(Boolean)
+  )].sort((a,b)=>
+    (rankScores[a] || 99) - (rankScores[b] || 99)
+  );
+
+  select.innerHTML = '<option value="">Todas as patentes</option>';
+
+  ranks.forEach(rank=>{
+    const option = document.createElement("option");
+    option.value = rank;
+    option.textContent = rank;
+    select.appendChild(option);
+  });
+
+  if(ranks.includes(currentValue)) select.value = currentValue;
+}
+
+function clearFilters(){
+  $("evaluationFilter").value = "";
+  $("rankFilter").value = "";
+  $("sortFilter").value = "newest";
+  $("minLevel").value = "";
+  $("maxLevel").value = "";
+  $("minAge").value = "";
+  $("maxAge").value = "";
+  searchInput.value = "";
+  renderPlayers();
+}
+
+function getFilteredPlayers(){
+  const search = searchInput.value.trim().toLowerCase();
+  const evaluation = $("evaluationFilter").value;
+  const rank = $("rankFilter").value;
+  const sort = $("sortFilter").value;
+
+  const minLevel = $("minLevel").value === "" ? null : Number($("minLevel").value);
+  const maxLevel = $("maxLevel").value === "" ? null : Number($("maxLevel").value);
+  const minAge = $("minAge").value === "" ? null : Number($("minAge").value);
+  const maxAge = $("maxAge").value === "" ? null : Number($("maxAge").value);
+
+  let filtered = players.filter(player=>{
+    if(player.status !== currentTab) return false;
+
+    const searchable = [
+      player.nick,
+      player.jogador_id,
+      player.cidade,
+      player.whatsapp
+    ].join(" ").toLowerCase();
+
+    if(search && !searchable.includes(search)) return false;
+
+    if(evaluation && evaluatePlayer(player).category !== evaluation) return false;
+
+    if(rank && player.patente !== rank) return false;
+
+    const level = Number(player.nivel_conta);
+    const age = Number(player.idade);
+
+    if(minLevel !== null && (!player.nivel_conta || level < minLevel)) return false;
+    if(maxLevel !== null && (!player.nivel_conta || level > maxLevel)) return false;
+    if(minAge !== null && (!player.idade || age < minAge)) return false;
+    if(maxAge !== null && (!player.idade || age > maxAge)) return false;
+
+    return true;
+  });
+
+  filtered.sort((a,b)=>{
+    if(sort === "oldest"){
+      return new Date(a.criado_em || 0) - new Date(b.criado_em || 0);
+    }
+    if(sort === "nick"){
+      return String(a.nick || "").localeCompare(String(b.nick || ""),"pt-BR");
+    }
+    if(sort === "level"){
+      return Number(b.nivel_conta || 0) - Number(a.nivel_conta || 0);
+    }
+    if(sort === "age"){
+      return Number(b.idade || 0) - Number(a.idade || 0);
+    }
+    return new Date(b.criado_em || 0) - new Date(a.criado_em || 0);
+  });
+
+  return filtered;
+}
+
+/* LOGIN */
+
+loginForm.addEventListener("submit",async event=>{
   event.preventDefault();
   clearMessage(loginMessage);
 
@@ -499,12 +645,12 @@ loginForm.addEventListener("submit",async event => {
   loginBtn.disabled = false;
   loginBtn.textContent = "Entrar no painel";
 
-  if(error) {
+  if(error){
     showMessage(loginMessage,"Não foi possível entrar. Confira o e-mail e a senha.","error");
     return;
   }
 
-  if(!data.session) {
+  if(!data.session){
     showMessage(loginMessage,"Não foi possível iniciar a sessão.","error");
     return;
   }
@@ -513,8 +659,9 @@ loginForm.addEventListener("submit",async event => {
   await loadPlayers();
 });
 
-// RECUPERAÇÃO DE SENHA
-$("forgotBtn").addEventListener("click",() => {
+/* RECUPERAÇÃO DE SENHA */
+
+$("forgotBtn").addEventListener("click",()=>{
   $("forgotEmail").value = $("email").value.trim();
   clearMessage($("forgotMessage"));
   showOnly(forgotBox);
@@ -522,7 +669,7 @@ $("forgotBtn").addEventListener("click",() => {
 
 $("backLoginBtn").addEventListener("click",showLogin);
 
-$("forgotForm").addEventListener("submit",async event => {
+$("forgotForm").addEventListener("submit",async event=>{
   event.preventDefault();
 
   const email = $("forgotEmail").value.trim();
@@ -535,14 +682,12 @@ $("forgotForm").addEventListener("submit",async event => {
 
   const redirectTo = window.location.origin + window.location.pathname;
 
-  const {error} = await client.auth.resetPasswordForEmail(email,{
-    redirectTo
-  });
+  const {error} = await client.auth.resetPasswordForEmail(email,{redirectTo});
 
   button.disabled = false;
   button.textContent = "Enviar recuperação";
 
-  if(error) {
+  if(error){
     showMessage(message,"Erro ao enviar: " + error.message,"error");
     return;
   }
@@ -550,15 +695,16 @@ $("forgotForm").addEventListener("submit",async event => {
   showMessage(message,"Se o e-mail estiver cadastrado, você receberá um link de recuperação. Confira também a caixa de spam.","ok");
 });
 
-client.auth.onAuthStateChange((event,session) => {
-  if(event === "PASSWORD_RECOVERY") {
+client.auth.onAuthStateChange((event,session)=>{
+  if(event === "PASSWORD_RECOVERY"){
     clearMessage($("resetMessage"));
     showOnly(resetBox);
   }
 });
 
-// SALVAR NOVA SENHA
-$("resetForm").addEventListener("submit",async event => {
+/* SALVAR NOVA SENHA */
+
+$("resetForm").addEventListener("submit",async event=>{
   event.preventDefault();
 
   const password = $("newPassword").value;
@@ -568,12 +714,12 @@ $("resetForm").addEventListener("submit",async event => {
 
   clearMessage(message);
 
-  if(password.length < 6) {
+  if(password.length < 6){
     showMessage(message,"A senha precisa ter pelo menos 6 caracteres.","error");
     return;
   }
 
-  if(password !== confirmation) {
+  if(password !== confirmation){
     showMessage(message,"As senhas não são iguais.","error");
     return;
   }
@@ -586,7 +732,7 @@ $("resetForm").addEventListener("submit",async event => {
   button.disabled = false;
   button.textContent = "Salvar nova senha";
 
-  if(error) {
+  if(error){
     showMessage(message,"Não foi possível alterar a senha: " + error.message,"error");
     return;
   }
@@ -599,8 +745,9 @@ $("resetForm").addEventListener("submit",async event => {
   showMessage(loginMessage,"Senha alterada com sucesso! Entre com sua nova senha.","ok");
 });
 
-// CARREGAR INSCRIÇÕES
-async function loadPlayers() {
+/* CARREGAR INSCRIÇÕES */
+
+async function loadPlayers(){
   playerList.innerHTML = '<div class="loading">Carregando inscrições...</div>';
   clearMessage($("loadMessage"));
 
@@ -609,7 +756,7 @@ async function loadPlayers() {
     .select("*")
     .order("criado_em",{ascending:false});
 
-  if(error) {
+  if(error){
     playerList.innerHTML = "";
     showMessage($("loadMessage"),"Erro ao carregar inscrições. Verifique as permissões de administrador no Supabase.","error");
     return;
@@ -617,48 +764,41 @@ async function loadPlayers() {
 
   players = data || [];
   updateCounts();
+  populateRankFilter();
   renderPlayers();
 }
 
-function updateCounts() {
-  $("countPending").textContent = players.filter(p => p.status === "Pendente").length;
-  $("countApproved").textContent = players.filter(p => p.status === "Aprovado").length;
-  $("countRejected").textContent = players.filter(p => p.status === "Reprovado").length;
+function updateCounts(){
+  $("countPending").textContent = players.filter(p=>p.status === "Pendente").length;
+  $("countApproved").textContent = players.filter(p=>p.status === "Aprovado").length;
+  $("countRejected").textContent = players.filter(p=>p.status === "Reprovado").length;
 
   const evaluations = players.map(evaluatePlayer);
 
-  $("countFit").textContent = evaluations.filter(e => e.category === "fit").length;
-  $("countReview").textContent = evaluations.filter(e => e.category === "review").length;
-  $("countFail").textContent = evaluations.filter(e => e.category === "fail").length;
+  $("countFit").textContent = evaluations.filter(e=>e.category === "fit").length;
+  $("countReview").textContent = evaluations.filter(e=>e.category === "review").length;
+  $("countFail").textContent = evaluations.filter(e=>e.category === "fail").length;
 }
 
-function renderPlayers() {
-  const search = searchInput.value.trim().toLowerCase();
+/* EXIBIR CANDIDATOS */
 
-  const filtered = players.filter(player => {
-    if(player.status !== currentTab) return false;
+function renderPlayers(){
+  const filtered = getFilteredPlayers();
 
-    const searchable = [
-      player.nick,
-      player.jogador_id,
-      player.cidade,
-      player.whatsapp
-    ].join(" ").toLowerCase();
+  $("filterResult").textContent =
+    `Mostrando ${filtered.length} de ${players.filter(p=>p.status === currentTab).length} inscrições`;
 
-    return searchable.includes(search);
-  });
-
-  if(!filtered.length) {
-    playerList.innerHTML = '<div class="empty">Nenhuma inscrição encontrada nesta aba.</div>';
+  if(!filtered.length){
+    playerList.innerHTML = '<div class="empty">Nenhuma inscrição encontrada com esses filtros.</div>';
     return;
   }
 
-  playerList.innerHTML = filtered.map(player => {
+  playerList.innerHTML = filtered.map(player=>{
     const whatsapp = String(player.whatsapp || "").replace(/\D/g,"");
     const whatsappNumber = whatsapp.startsWith("55") ? whatsapp : "55" + whatsapp;
     const whatsappLink = whatsapp ? "https://wa.me/" + whatsappNumber : "";
 
-    const details = Object.entries(labels).map(([key,label]) => `
+    const details = Object.entries(labels).map(([key,label])=>`
       <div class="detail-item">
         <small>${escapeHTML(label)}</small>
         <div>${escapeHTML(formatValue(key,player[key]))}</div>
@@ -667,12 +807,12 @@ function renderPlayers() {
 
     let actionButtons = "";
 
-    if(player.status === "Pendente") {
+    if(player.status === "Pendente"){
       actionButtons = `
         <button class="success" data-action="Aprovado" data-id="${escapeHTML(player.id)}">Aprovar</button>
         <button class="danger" data-action="Reprovado" data-id="${escapeHTML(player.id)}">Reprovar</button>
       `;
-    } else {
+    }else{
       actionButtons = `
         <button class="warning" data-action="Pendente" data-id="${escapeHTML(player.id)}">Voltar para pendentes</button>
       `;
@@ -717,26 +857,47 @@ function renderPlayers() {
   }).join("");
 }
 
-// ABAS
-document.querySelectorAll(".tab").forEach(button => {
-  button.addEventListener("click",() => {
+/* ABAS */
+
+document.querySelectorAll(".tab").forEach(button=>{
+  button.addEventListener("click",()=>{
     currentTab = button.dataset.tab;
-    document.querySelectorAll(".tab").forEach(tab => {
+
+    document.querySelectorAll(".tab").forEach(tab=>{
       tab.classList.toggle("active",tab === button);
     });
+
     renderPlayers();
   });
 });
 
-searchInput.addEventListener("input",renderPlayers);
+/* EVENTOS DOS FILTROS */
 
-// AÇÕES DOS JOGADORES
-playerList.addEventListener("click",async event => {
+[
+  "evaluationFilter",
+  "rankFilter",
+  "sortFilter",
+  "minLevel",
+  "maxLevel",
+  "minAge",
+  "maxAge"
+].forEach(id=>{
+  $(id).addEventListener("input",renderPlayers);
+  $(id).addEventListener("change",renderPlayers);
+});
+
+searchInput.addEventListener("input",renderPlayers);
+$("clearFilters").addEventListener("click",clearFilters);
+
+/* AÇÕES DOS JOGADORES */
+
+playerList.addEventListener("click",async event=>{
   const detailsButton = event.target.closest("[data-details]");
 
-  if(detailsButton) {
+  if(detailsButton){
     const id = detailsButton.dataset.details;
     const details = document.getElementById("details-" + id);
+
     details.classList.toggle("open");
     detailsButton.textContent = details.classList.contains("open")
       ? "Fechar perfil"
@@ -746,7 +907,7 @@ playerList.addEventListener("click",async event => {
 
   const actionButton = event.target.closest("[data-action]");
 
-  if(actionButton) {
+  if(actionButton){
     const newStatus = actionButton.dataset.action;
     const id = actionButton.dataset.id;
 
@@ -765,7 +926,7 @@ playerList.addEventListener("click",async event => {
       .update({status:newStatus})
       .eq("id",id);
 
-    if(error) {
+    if(error){
       alert("Não foi possível atualizar o status. Verifique as permissões do Supabase.");
       actionButton.disabled = false;
       return;
@@ -775,22 +936,26 @@ playerList.addEventListener("click",async event => {
   }
 });
 
+/* ATUALIZAR E SAIR */
+
 refreshBtn.addEventListener("click",loadPlayers);
 
-logoutBtn.addEventListener("click",async () => {
+logoutBtn.addEventListener("click",async()=>{
   await client.auth.signOut();
   players = [];
   searchInput.value = "";
+  clearFilters();
   loginForm.reset();
   clearMessage(loginMessage);
   showLogin();
 });
 
-// RESTAURAR SESSÃO
-async function initialize() {
+/* RESTAURAR SESSÃO */
+
+async function initialize(){
   const {data,error} = await client.auth.getSession();
 
-  if(error) {
+  if(error){
     showLogin();
     return;
   }
@@ -799,15 +964,15 @@ async function initialize() {
   const isRecoveryLink = hash.includes("type=recovery") ||
     new URLSearchParams(window.location.search).get("type") === "recovery";
 
-  if(isRecoveryLink) {
+  if(isRecoveryLink){
     showOnly(resetBox);
     return;
   }
 
-  if(data.session) {
+  if(data.session){
     showDashboard();
     await loadPlayers();
-  } else {
+  }else{
     showLogin();
   }
 }
