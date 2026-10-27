@@ -14,7 +14,7 @@ body{margin:0;background:radial-gradient(ellipse at 50% 0,#351018 0,transparent 
 body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background:repeating-linear-gradient(132deg,transparent 0 80px,#e51b31 81px 83px,transparent 84px 170px);mask-image:linear-gradient(to bottom,#000,transparent 75%)}
 a{color:inherit;text-decoration:none}
 .wrap{width:min(1180px,92%);margin:auto}
-header{height:76px;border-bottom:1px solid #4b1720;background:#08090ceF;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+header{height:76px;border-bottom:1px solid #4b1720;background:#08090cef;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
 nav{height:100%;display:flex;align-items:center;justify-content:space-between}
 .brand{font-weight:1000;font-size:38px;letter-spacing:-4px;font-style:italic;color:var(--red);text-shadow:2px 2px #fff}
 .brand span{color:#fff}
@@ -59,8 +59,29 @@ textarea{min-height:95px;resize:vertical}
 .check{display:grid;gap:12px}
 .submit{width:100%;font-size:14px;margin-top:20px}
 .submit:disabled{opacity:.6;cursor:wait}
-.notice{font-size:11px;color:#8f929c;text-align:center}
+.notice{font-size:11px;color:#8f929c;text-align:center;margin-top:12px}
 .success{display:none;padding:15px;border:1px solid #1e784d;background:#0b2118;color:#b9f4d4;margin-top:14px}
+
+/* ETAPAS */
+.progress-area{margin:25px 0 20px}
+.progress-info{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#c9c9d0;margin-bottom:10px}
+.progress-info strong{color:var(--red)}
+.progress-track{height:7px;background:#29232a;border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;width:25%;background:linear-gradient(90deg,var(--red2),var(--red));transition:width .3s ease}
+.step-labels{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:12px}
+.step-label{font-size:10px;text-align:center;color:#777b85;padding:7px 2px;border-bottom:2px solid #333}
+.step-label.active{color:#fff;border-color:var(--red)}
+.step-label.done{color:#ff6573;border-color:#9e0718}
+.step-panel[hidden]{display:none}
+.step-panel{animation:appear .25s ease}
+@keyframes appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.step-heading{font-size:18px;font-weight:bold;margin:22px 0 5px}
+.step-description{font-size:12px;color:var(--muted);margin:0 0 15px}
+.step-buttons{display:flex;gap:12px;margin-top:25px}
+.step-buttons button{flex:1;margin:0}
+.btn-secondary{background:#252630;border:1px solid #494a55;color:#fff}
+.btn-secondary:hover{background:#353642}
+.step-counter{font-size:11px;color:#8f929c;text-align:center;margin-top:12px}
 footer{text-align:center;color:#777b85;padding:35px 10px;font-size:11px;letter-spacing:3px}
 footer b{color:var(--red)}
 @media(max-width:800px){
@@ -74,6 +95,8 @@ footer b{color:var(--red)}
 .stat{border-bottom:1px solid #32151c}
 .fields{grid-template-columns:1fr}
 .field.full{grid-column:auto}
+.step-label{font-size:9px}
+.side,.formbox{padding:18px}
 }
 </style>
 </head>
@@ -117,7 +140,7 @@ footer b{color:var(--red)}
 <p>Este espaço é da sua guilda. Edite os textos abaixo com a história e os objetivos reais da RLK antes de publicar.</p>
 
 <div class="section">
-<h3><span>◆</span> O QUE VALORIZAMOS</h3>
+<h3>◆ O QUE VALORIZAMOS</h3>
 <div class="rule"><b>01</b> Respeito entre os membros</div>
 <div class="rule"><b>02</b> Espírito de equipe</div>
 <div class="rule"><b>03</b> Vontade de evoluir</div>
@@ -125,26 +148,46 @@ footer b{color:var(--red)}
 </div>
 
 <div class="section">
-<h3><span>◆</span> FUNÇÕES</h3>
+<h3>◆ FUNÇÕES</h3>
 <div class="rule">Cura</div>
 <div class="rule">Rush</div>
 <div class="rule">Gás</div>
 </div>
 
 <div class="section">
-<h3><span>◆</span> AVISO</h3>
+<h3>◆ AVISO</h3>
 <p>As informações enviadas serão usadas pela administração da RLK para avaliar sua inscrição. Não compartilhe senhas nem códigos de acesso.</p>
 </div>
 </aside>
 
 <section class="formbox" id="inscricao">
 <h2>FORMULÁRIO DE <span>RECRUTAMENTO</span></h2>
-<p>Preencha com atenção. Os campos com * são obrigatórios.</p>
+<p>Preencha as quatro etapas com atenção. Os campos com * são obrigatórios.</p>
 
-<form id="joinForm">
+<div class="progress-area">
+<div class="progress-info">
+<span id="stepTitle">ETAPA 1 DE 4</span>
+<strong id="stepPercent">25%</strong>
+</div>
+<div class="progress-track">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+<div class="step-labels">
+<div class="step-label active" data-label="0">01 · DADOS</div>
+<div class="step-label" data-label="1">02 · PERFIL</div>
+<div class="step-label" data-label="2">03 · GUERRAS</div>
+<div class="step-label" data-label="3">04 · FINALIZAÇÃO</div>
+</div>
+</div>
+
+<form id="joinForm" novalidate>
+
+<!-- ETAPA 1 -->
+<div class="step-panel" data-step="0">
+<div class="step-heading">01. Dados do jogador</div>
+<p class="step-description">Primeiro, precisamos saber quem está querendo entrar na RLK.</p>
 
 <div class="section">
-<h3><i>01</i> DADOS DO JOGADOR</h3>
 <div class="fields">
 
 <div class="field">
@@ -179,9 +222,14 @@ footer b{color:var(--red)}
 
 </div>
 </div>
+</div>
+
+<!-- ETAPA 2 -->
+<div class="step-panel" data-step="1" hidden>
+<div class="step-heading">02. Perfil de jogo</div>
+<p class="step-description">Queremos conhecer sua função, patente e experiência no Free Fire.</p>
 
 <div class="section">
-<h3><i>02</i> PERFIL DE JOGO</h3>
 <div class="fields">
 
 <div class="field">
@@ -234,9 +282,14 @@ footer b{color:var(--red)}
 
 </div>
 </div>
+</div>
+
+<!-- ETAPA 3 -->
+<div class="step-panel" data-step="2" hidden>
+<div class="step-heading">03. Guerras e disponibilidade</div>
+<p class="step-description">Esta etapa ajuda a administração a entender como você atua nas guerras.</p>
 
 <div class="section">
-<h3><i>03</i> GUERRAS DE GUILDA</h3>
 <div class="fields">
 
 <div class="field">
@@ -320,9 +373,15 @@ footer b{color:var(--red)}
 
 </div>
 </div>
+</div>
+
+<!-- ETAPA 4 -->
+<div class="step-panel" data-step="3" hidden>
+<div class="step-heading">04. Atividade e confirmação</div>
+<p class="step-description">Estamos quase lá. Conte um pouco mais sobre sua rotina e confirme seu compromisso com a RLK.</p>
 
 <div class="section">
-<h3><i>04</i> DISPONIBILIDADE E ATIVIDADE</h3>
+<h3><i>◆</i> DISPONIBILIDADE E ATIVIDADE</h3>
 
 <div class="field">
 <label>Quais dias costuma jogar?</label>
@@ -391,7 +450,7 @@ footer b{color:var(--red)}
 </div>
 
 <div class="section">
-<h3><i>05</i> CONHEÇA O JOGADOR</h3>
+<h3><i>◆</i> CONHEÇA O JOGADOR</h3>
 <div class="fields">
 
 <div class="field full">
@@ -408,7 +467,7 @@ footer b{color:var(--red)}
 </div>
 
 <div class="section">
-<h3><i>06</i> CONFIRMAÇÃO</h3>
+<h3><i>◆</i> CONFIRMAÇÃO</h3>
 <div class="check">
 <label>
 <input type="checkbox" name="informacoes_verdadeiras" required>
@@ -421,8 +480,15 @@ Comprometo-me a respeitar todos os membros e seguir as regras da RLK.
 </label>
 </div>
 </div>
+</div>
 
-<button class="btn submit" type="submit">ENVIAR INSCRIÇÃO ↗</button>
+<div class="step-buttons">
+<button class="btn btn-secondary" type="button" id="backBtn" hidden>← VOLTAR</button>
+<button class="btn" type="button" id="nextBtn">PRÓXIMA ETAPA →</button>
+<button class="btn submit" type="submit" id="submitBtn" hidden>ENVIAR INSCRIÇÃO ↗</button>
+</div>
+
+<div class="step-counter" id="stepCounter">Etapa 1 de 4</div>
 
 <div class="notice">Seus dados serão enviados para a administração da RLK avaliar sua inscrição.</div>
 
@@ -451,24 +517,107 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_KEY
 );
 
+// CONTROLE DAS ETAPAS
+const panels = [...document.querySelectorAll('.step-panel')];
+const labels = [...document.querySelectorAll('.step-label')];
+const progressFill = document.getElementById('progressFill');
+const stepTitle = document.getElementById('stepTitle');
+const stepPercent = document.getElementById('stepPercent');
+const stepCounter = document.getElementById('stepCounter');
+const backBtn = document.getElementById('backBtn');
+const nextBtn = document.getElementById('nextBtn');
+const submitBtn = document.getElementById('submitBtn');
+
+let currentStep = 0;
+
+function showStep(step) {
+  currentStep = step;
+
+  panels.forEach((panel, index) => {
+    panel.hidden = index !== step;
+  });
+
+  labels.forEach((label, index) => {
+    label.classList.toggle('active', index === step);
+    label.classList.toggle('done', index < step);
+  });
+
+  const percent = Math.round(((step + 1) / panels.length) * 100);
+
+  progressFill.style.width = percent + '%';
+  stepTitle.textContent = `ETAPA ${step + 1} DE 4`;
+  stepPercent.textContent = percent + '%';
+  stepCounter.textContent = `Etapa ${step + 1} de 4`;
+
+  backBtn.hidden = step === 0;
+  nextBtn.hidden = step === panels.length - 1;
+  submitBtn.hidden = step !== panels.length - 1;
+
+  document.getElementById('inscricao').scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+}
+
+function validatePanel(panel) {
+  const fields = [...panel.querySelectorAll('input, select, textarea')];
+
+  for (const field of fields) {
+    if (!field.checkValidity()) {
+      field.reportValidity();
+      return false;
+    }
+  }
+
+  return true;
+}
+
+nextBtn.addEventListener('click', () => {
+  if (!validatePanel(panels[currentStep])) return;
+
+  if (currentStep < panels.length - 1) {
+    showStep(currentStep + 1);
+  }
+});
+
+backBtn.addEventListener('click', () => {
+  if (currentStep > 0) {
+    showStep(currentStep - 1);
+  }
+});
+
+// ENVIO PARA O SUPABASE
 form.addEventListener('submit', async e => {
   e.preventDefault();
 
-  const submitButton = form.querySelector('button[type="submit"]');
+  // Confere todas as etapas antes de enviar
+  for (let i = 0; i < panels.length; i++) {
+    if (!validatePanel(panels[i])) {
+      showStep(i);
+      const invalidField = [...panels[i].querySelectorAll('input, select, textarea')]
+        .find(field => !field.checkValidity());
+
+      if (invalidField) invalidField.reportValidity();
+      return;
+    }
+  }
 
   const idade = Number(form.elements.age.value);
   const nivelConta = Number(form.elements.nivel_conta.value);
 
   if (idade < 14) {
+    showStep(0);
     alert('A idade mínima para entrar na RLK é 14 anos.');
     return;
   }
 
   if (nivelConta < 1) {
+    showStep(0);
     alert('Informe um nível de conta válido.');
     return;
   }
 
+  const submitButton = submitBtn;
   submitButton.disabled = true;
   submitButton.textContent = 'ENVIANDO...';
 
@@ -525,7 +674,12 @@ form.addEventListener('submit', async e => {
     success.style.display = 'block';
 
     form.reset();
-    success.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    showStep(0);
+
+    success.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
 
   } catch (error) {
     console.error('Erro ao enviar inscrição:', error);
@@ -535,6 +689,8 @@ form.addEventListener('submit', async e => {
     submitButton.textContent = 'ENVIAR INSCRIÇÃO ↗';
   }
 });
+
+showStep(0);
 </script>
 
 </body>
