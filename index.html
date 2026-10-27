@@ -158,8 +158,13 @@ footer b{color:var(--red)}
 </div>
 
 <div class="field">
-<label>Idade *</label>
-<input name="age" required type="number" min="1" max="99" placeholder="Sua idade">
+<label>Idade * (mínimo 14 anos)</label>
+<input name="age" required type="number" min="14" max="99" placeholder="Sua idade">
+</div>
+
+<div class="field">
+<label>Nível da conta * (mínimo 40)</label>
+<input name="nivel_conta" required type="number" min="1" max="999" placeholder="Ex.: 55">
 </div>
 
 <div class="field">
@@ -167,7 +172,7 @@ footer b{color:var(--red)}
 <input name="city" placeholder="Ex.: Curitiba - PR">
 </div>
 
-<div class="field full">
+<div class="field">
 <label>WhatsApp para contato *</label>
 <input name="whatsapp" type="tel" required maxlength="20" inputmode="tel" placeholder="Ex.: (46) 99999-9999">
 </div>
@@ -190,13 +195,17 @@ footer b{color:var(--red)}
 </div>
 
 <div class="field">
-<label>Patente atual</label>
-<select name="rank">
+<label>Patente atual *</label>
+<select name="rank" required>
 <option value="">Selecione</option>
-<option>Bronze / Prata</option>
+<option>Bronze</option>
+<option>Prata</option>
 <option>Ouro</option>
 <option>Platina</option>
-<option>Diamante</option>
+<option>Diamante IV</option>
+<option>Diamante III</option>
+<option>Diamante II</option>
+<option>Diamante I</option>
 <option>Mestre</option>
 <option>Desafiante</option>
 </select>
@@ -291,6 +300,15 @@ footer b{color:var(--red)}
 </div>
 
 <div class="field full">
+<label>Tem disponibilidade para participar das guerras da RLK? *</label>
+<select name="disponibilidade_guerras" required>
+<option value="">Selecione</option>
+<option value="Sim">Sim</option>
+<option value="Não">Não</option>
+</select>
+</div>
+
+<div class="field full">
 <label>Conte sobre sua experiência em guerras: o que você faz bem e o que precisa melhorar?</label>
 <textarea name="war_experience_details" maxlength="700" placeholder="Ex.: posicionamento, comunicação, suporte, avanço, estratégia..."></textarea>
 </div>
@@ -304,13 +322,15 @@ footer b{color:var(--red)}
 </div>
 
 <div class="section">
-<h3><i>04</i> DISPONIBILIDADE</h3>
+<h3><i>04</i> DISPONIBILIDADE E ATIVIDADE</h3>
 
+<div class="field">
 <label>Quais dias costuma jogar?</label>
 <div class="choices">
 <label><input type="checkbox" name="days" value="Segunda a sexta"> Segunda a sexta</label>
 <label><input type="checkbox" name="days" value="Sábado"> Sábado</label>
 <label><input type="checkbox" name="days" value="Domingo"> Domingo</label>
+</div>
 </div>
 
 <div class="fields" style="margin-top:14px">
@@ -337,6 +357,36 @@ footer b{color:var(--red)}
 </select>
 </div>
 
+<div class="field">
+<label>Com que frequência você joga? *</label>
+<select name="atividade" required>
+<option value="">Selecione</option>
+<option>Todos os dias</option>
+<option>4 a 6 dias por semana</option>
+<option>2 a 3 dias por semana</option>
+<option>Raramente</option>
+</select>
+</div>
+
+<div class="field">
+<label>Está disposto a jogar com sua line organizada sempre que possível? *</label>
+<select name="line_organizada" required>
+<option value="">Selecione</option>
+<option>Sim, sempre que possível</option>
+<option>Às vezes</option>
+<option>Ainda não tenho uma line</option>
+</select>
+</div>
+
+<div class="field full">
+<label>Você está disposto a acompanhar e participar do grupo oficial da RLK? *</label>
+<select name="acompanha_grupo" required>
+<option value="">Selecione</option>
+<option value="Sim">Sim</option>
+<option value="Não">Não</option>
+</select>
+</div>
+
 </div>
 </div>
 
@@ -360,8 +410,15 @@ footer b{color:var(--red)}
 <div class="section">
 <h3><i>06</i> CONFIRMAÇÃO</h3>
 <div class="check">
-<label><input type="checkbox" required> Confirmo que as informações acima são verdadeiras.</label>
-<label><input type="checkbox" required> Comprometo-me a respeitar os membros e as regras da RLK.</label>
+<label>
+<input type="checkbox" name="informacoes_verdadeiras" required>
+Confirmo que as informações acima são verdadeiras.
+</label>
+
+<label>
+<input type="checkbox" name="compromisso_regras" value="true" required>
+Comprometo-me a respeitar todos os membros e seguir as regras da RLK.
+</label>
 </div>
 </div>
 
@@ -398,6 +455,20 @@ form.addEventListener('submit', async e => {
   e.preventDefault();
 
   const submitButton = form.querySelector('button[type="submit"]');
+
+  const idade = Number(form.elements.age.value);
+  const nivelConta = Number(form.elements.nivel_conta.value);
+
+  if (idade < 14) {
+    alert('A idade mínima para entrar na RLK é 14 anos.');
+    return;
+  }
+
+  if (nivelConta < 1) {
+    alert('Informe um nível de conta válido.');
+    return;
+  }
+
   submitButton.disabled = true;
   submitButton.textContent = 'ENVIANDO...';
 
@@ -407,26 +478,39 @@ form.addEventListener('submit', async e => {
   const data = {
     nick: get('nick'),
     jogador_id: get('id'),
-    idade: Number(get('age')),
+    idade: idade,
+    nivel_conta: nivelConta,
     cidade: get('city'),
     whatsapp: get('whatsapp'),
+
     funcao: get('role'),
     patente: get('rank'),
     experiencia: get('experience'),
     competitivo: get('competitive'),
+
     experiencia_guerra: get('guild_war_experience'),
     nivel_guerra: get('war_level'),
     funcao_guerra: get('war_role'),
     chamadas: get('calls'),
     treino: get('training'),
     comunicacao: get('voice_war'),
+    disponibilidade_guerras: get('disponibilidade_guerras'),
     detalhes_guerra: get('war_experience_details'),
     situacao_guerra: get('war_situation'),
+
     dias: [...form.querySelectorAll('input[name="days"]:checked')].map(x => x.value),
     horario: get('time'),
     microfone: get('mic'),
+
+    atividade: get('atividade'),
+    acompanha_grupo: get('acompanha_grupo'),
+    line_organizada: get('line_organizada'),
+
     motivacao: get('motivation'),
     guilda_anterior: get('previous'),
+
+    compromisso_regras: fd.get('compromisso_regras') === 'true',
+
     status: 'Pendente'
   };
 
