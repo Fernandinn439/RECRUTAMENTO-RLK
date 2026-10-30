@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -235,7 +234,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
   </section>
 
   <section class="panel">
-    <input id="searchInput" class="search" type="search" placeholder="Pesquisar por nick, ID, cidade ou WhatsApp...">
+    <input id="searchInput" class="search" type="search" placeholder="Pesquisar por nome, nick, ID, cidade ou WhatsApp...">
 
     <div class="tabs">
       <button class="tab active" data-tab="Pendente">Pendentes</button>
@@ -343,6 +342,7 @@ let players = [];
 let currentTab = "Pendente";
 
 const labels = {
+  primeiro_nome:"Primeiro nome",
   nick:"Nick",
   jogador_id:"ID do jogador",
   idade:"Idade",
@@ -614,6 +614,7 @@ function getFilteredPlayers(){
     if(player.status !== currentTab) return false;
 
     const searchable = [
+      player.primeiro_nome,
       player.nick,
       player.jogador_id,
       player.cidade,
@@ -848,7 +849,11 @@ function renderPlayers(){
       <article class="player">
         <div class="player-top">
           <div>
-            <div class="player-name">${escapeHTML(player.nick || "Sem nick")}</div>
+            <div class="player-name">
+              ${escapeHTML(player.primeiro_nome || "Nome não informado")}
+              <span style="color:#f0182d"> | </span>
+              ${escapeHTML(player.nick || "Sem nick")}
+            </div>
             <div class="player-info">
               ID: ${escapeHTML(player.jogador_id || "Não informado")}
               · ${escapeHTML(player.idade ?? "—")} anos
