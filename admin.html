@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -144,7 +143,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.primary{background:var(--red);col
 
 <script>
 const SUPABASE_URL="https://pcabchaqmqllfvvvudbl.supabase.co";
-const SUPABASE_KEY="sb_publishable_THm0a3RUxY5Y3oxX303HRbg_JZc7K4aS";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjYWJjaGFxbXFsbGZ2dnV1ZGJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwMjI1MzMsImV4cCI6MjEwODU5ODUzM30.GcevqIfLw4puEUTkYvX7f6Hnkrp8uC97MhihtHMOdns";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const $=id=>document.getElementById(id);
 const loginBox=$("loginBox"),forgotBox=$("forgotBox"),resetBox=$("resetBox"),dashboard=$("dashboard");
@@ -178,87 +177,33 @@ function formatValue(key,value){
  return Array.isArray(value)?value.join(", "):String(value)
 }
 
-/* PATENTES RLK: PROGRESSÃO COMPLETA */
 const rankScores={
  "Bronze I":1,"Bronze II":2,"Bronze III":3,
  "Prata I":4,"Prata II":5,"Prata III":6,
  "Ouro I":7,"Ouro II":8,"Ouro III":9,"Ouro IV":10,
  "Platina I":11,"Platina II":12,"Platina III":13,"Platina IV":14,
  "Diamante I":15,"Diamante II":16,"Diamante III":17,"Diamante IV":18,"Diamante V":19,
- "Mestre 1":20,
+ "Mestre 1":20,"Mestre":20,
  "Mestre de Honra 2":21,"Mestre de Honra 3":22,"Mestre de Honra 4":23,"Mestre de Honra 5":24,
- "Elite":25,
- "Elite de Honra 1":26,"Elite de Honra 2":27,"Elite de Honra 3":28,
- "Desafiante":29
+ "Elite":25,"Elite de Honra 1":26,"Elite de Honra 2":27,"Elite de Honra 3":28,
+ "Desafiante":29,
+ /* Compatibilidade com inscrições antigas que salvavam apenas o nome da divisão. */
+ "Bronze":1,"Prata":4,"Ouro":7,"Platina":11
 };
-
-function normalizeRank(rank){
- return String(rank||"").trim().toLowerCase()
-  .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-  .replace(/\s+/g," ");
-}
-
-function getRankScore(rank){
- const normalized=normalizeRank(rank);
- if(!normalized)return undefined;
-
- const found=Object.entries(rankScores).find(([name])=>
-  normalizeRank(name)===normalized
- );
-
- if(found)return found[1];
-
- const legacy={
-  "bronze":1,"prata":4,"ouro":7,"platina":11,
-  "diamante":15,"mestre":20
- };
-
- return legacy[normalized];
-}
-
 function evaluatePlayer(player){
- const failures=[],reviews=[],passes=[];
- const age=Number(player.idade),level=Number(player.nivel_conta);
- const rankScore=getRankScore(player.patente);
-
- if(player.idade===null||player.idade===undefined||player.idade==="")reviews.push("Idade não informada.");
- else if(age<14)failures.push("Idade abaixo do mínimo de 14 anos.");
- else passes.push("Idade dentro do requisito.");
-
- if(player.nivel_conta===null||player.nivel_conta===undefined||player.nivel_conta==="")reviews.push("Nível da conta não informado.");
- else if(level<40)failures.push("Nível da conta abaixo de 40.");
- else passes.push("Nível da conta atende ao mínimo.");
-
- if(!player.patente||rankScore===undefined)reviews.push("Patente não informada ou não reconhecida.");
- else if(rankScore<rankScores["Diamante III"])failures.push("Patente abaixo de Diamante III.");
- else passes.push("Patente atende ao mínimo Diamante III.");
-
- if(!player.disponibilidade_guerras)reviews.push("Disponibilidade para guerras não informada.");
- else if(player.disponibilidade_guerras==="Não")failures.push("Não tem disponibilidade para guerras.");
- else passes.push("Tem disponibilidade para guerras.");
-
- if(player.compromisso_regras===null||player.compromisso_regras===undefined)reviews.push("Compromisso com as regras não informado.");
- else if(player.compromisso_regras!==true)failures.push("Não confirmou o compromisso com as regras.");
- else passes.push("Confirmou o compromisso com as regras.");
-
- if(!player.atividade)reviews.push("Frequência de jogo não informada.");
- else if(player.atividade==="Raramente")failures.push("Informou que joga raramente.");
- else if(player.atividade==="2 a 3 dias por semana")reviews.push("Joga de 2 a 3 dias por semana. Avaliar atividade.");
- else passes.push("Frequência de jogo adequada.");
-
- if(!player.acompanha_grupo)reviews.push("Participação no grupo oficial não informada.");
- else if(player.acompanha_grupo==="Não")failures.push("Não está disposto a acompanhar o grupo oficial.");
- else passes.push("Está disposto a acompanhar o grupo oficial.");
-
- if(!player.line_organizada)reviews.push("Disponibilidade para line não informada.");
- else if(player.line_organizada==="Sim, sempre que possível")passes.push("Está disposto a jogar com a line organizada.");
- else reviews.push("Disponibilidade para line precisa de avaliação.");
-
+ const failures=[],reviews=[],passes=[],age=Number(player.idade),level=Number(player.nivel_conta),rankScore=rankScores[player.patente];
+ if(player.idade===null||player.idade===undefined||player.idade==="")reviews.push("Idade não informada.");else if(age<14)failures.push("Idade abaixo do mínimo de 14 anos.");else passes.push("Idade dentro do requisito.");
+ if(player.nivel_conta===null||player.nivel_conta===undefined||player.nivel_conta==="")reviews.push("Nível da conta não informado.");else if(level<40)failures.push("Nível da conta abaixo de 40.");else passes.push("Nível da conta atende ao mínimo.");
+ if(!player.patente||rankScore===undefined)reviews.push("Patente não informada ou não reconhecida.");else if(rankScore<rankScores["Diamante III"])failures.push("Patente abaixo de Diamante III.");else passes.push("Patente atende ao mínimo Diamante III.");
+ if(!player.disponibilidade_guerras)reviews.push("Disponibilidade para guerras não informada.");else if(player.disponibilidade_guerras==="Não")failures.push("Não tem disponibilidade para guerras.");else passes.push("Tem disponibilidade para guerras.");
+ if(player.compromisso_regras===null||player.compromisso_regras===undefined)reviews.push("Compromisso com as regras não informado.");else if(player.compromisso_regras!==true)failures.push("Não confirmou o compromisso com as regras.");else passes.push("Confirmou o compromisso com as regras.");
+ if(!player.atividade)reviews.push("Frequência de jogo não informada.");else if(player.atividade==="Raramente")failures.push("Informou que joga raramente.");else if(player.atividade==="2 a 3 dias por semana")reviews.push("Joga de 2 a 3 dias por semana. Avaliar atividade.");else passes.push("Frequência de jogo adequada.");
+ if(!player.acompanha_grupo)reviews.push("Participação no grupo oficial não informada.");else if(player.acompanha_grupo==="Não")failures.push("Não está disposto a acompanhar o grupo oficial.");else passes.push("Está disposto a acompanhar o grupo oficial.");
+ if(!player.line_organizada)reviews.push("Disponibilidade para line não informada.");else if(player.line_organizada==="Sim, sempre que possível")passes.push("Está disposto a jogar com a line organizada.");else reviews.push("Disponibilidade para line precisa de avaliação.");
  const category=failures.length?"fail":reviews.length?"review":"fit";
  const title=category==="fail"?"NÃO ATENDE AOS REQUISITOS":category==="review"?"PRECISA DE AVALIAÇÃO":"ATENDE AOS REQUISITOS";
  return {category,title,failures,reviews,passes}
 }
-
 function evaluationHTML(player){
  const result=evaluatePlayer(player);let items="";
  result.passes.forEach(item=>items+=`<li class="pass">✓ ${escapeHTML(item)}</li>`);
@@ -271,18 +216,15 @@ function evaluationHTML(player){
 
 function populateRankFilter(){
  const select=$("rankFilter"),currentValue=select.value;
- const ranks=[...new Set(players.map(p=>p.patente).filter(Boolean))]
-  .sort((a,b)=>(getRankScore(a)??99)-(getRankScore(b)??99));
+ const ranks=[...new Set(players.map(p=>p.patente).filter(Boolean))].sort((a,b)=>(rankScores[a]||99)-(rankScores[b]||99));
  select.innerHTML='<option value="">Todas as patentes</option>';
  ranks.forEach(rank=>{const option=document.createElement("option");option.value=rank;option.textContent=rank;select.appendChild(option)});
  if(ranks.includes(currentValue))select.value=currentValue
 }
-
 function clearFilters(){
  ["evaluationFilter","rankFilter","minLevel","maxLevel","minAge","maxAge"].forEach(id=>$(id).value="");
  $("sortFilter").value="newest";searchInput.value="";renderPlayers()
 }
-
 function getFilteredPlayers(){
  const search=searchInput.value.trim().toLowerCase(),evaluation=$("evaluationFilter").value,rank=$("rankFilter").value,sort=$("sortFilter").value;
  const minLevel=$("minLevel").value===""?null:Number($("minLevel").value),maxLevel=$("maxLevel").value===""?null:Number($("maxLevel").value);
@@ -315,10 +257,25 @@ loginForm.addEventListener("submit",async event=>{
  event.preventDefault();clearMessage(loginMessage);
  const email=$("email").value.trim(),password=$("password").value;
  loginBtn.disabled=true;loginBtn.textContent="Verificando...";
- const {data,error}=await client.auth.signInWithPassword({email,password});
+ let result;
+ try {
+  result=await client.auth.signInWithPassword({email,password});
+ } catch(exception) {
+  console.error("ERRO AO FAZER LOGIN:",exception);
+  loginBtn.disabled=false;loginBtn.textContent="Entrar no painel";
+  showMessage(loginMessage,"Falha de comunicação com o Supabase: "+(exception?.message||"erro desconhecido"),"error");
+  return;
+ }
+ const {data,error}=result;
  loginBtn.disabled=false;loginBtn.textContent="Entrar no painel";
- if(error){showMessage(loginMessage,"Não foi possível entrar. Confira o e-mail e a senha.","error");return}
- if(!data.session){showMessage(loginMessage,"Não foi possível iniciar a sessão.","error");return}
+ if(error){
+  console.error("ERRO DE AUTENTICAÇÃO SUPABASE:",error);
+  const code=error.code?" | Código: "+error.code:"";
+  const status=error.status?" | HTTP: "+error.status:"";
+  showMessage(loginMessage,"Erro do Supabase: "+error.message+code+status,"error");
+  return;
+ }
+ if(!data.session){showMessage(loginMessage,"O Supabase não retornou uma sessão. Tente novamente.","error");return}
  showDashboard();await loadPlayers()
 });
 
@@ -347,7 +304,7 @@ $("resetForm").addEventListener("submit",async event=>{
  await client.auth.signOut();$("resetForm").reset();$("loginForm").reset();clearMessage(loginMessage);showLogin();showMessage(loginMessage,"Senha alterada com sucesso! Entre com sua nova senha.","ok")
 });
 
-/* CARREGAR INSCRIÇÕES: COM ERRO DETALHADO */
+/* CARREGAR INSCRIÇÕES */
 async function loadPlayers(){
  playerList.innerHTML='<div class="loading">Carregando inscrições...</div>';
  clearMessage($("loadMessage"));
@@ -360,7 +317,6 @@ async function loadPlayers(){
  if(error){
   console.error("ERRO COMPLETO DO SUPABASE:",error);
   playerList.innerHTML="";
-
   showMessage(
    $("loadMessage"),
    "Erro: "+error.message+
@@ -373,13 +329,11 @@ async function loadPlayers(){
  }
 
  console.log("Inscrições carregadas:",data);
-
  players=data||[];
  updateCounts();
  populateRankFilter();
  renderPlayers();
 }
-
 function updateCounts(){
  $("countPending").textContent=players.filter(p=>p.status==="Pendente").length;
  $("countApproved").textContent=players.filter(p=>p.status==="Aprovado").length;
