@@ -145,6 +145,13 @@ button:disabled{opacity:.5;cursor:not-allowed}.primary{background:var(--red);col
 const SUPABASE_URL="https://pcabchaqmqllfvvvudbl.supabase.co";
 const SUPABASE_KEY="sb_publishable_THm0a3RUx5Y3oxX303HRbg_JZc7K4aS";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  fetch(SUPABASE_URL+"/auth/v1/health",{
+  headers:{"apikey":SUPABASE_KEY}
+})
+.then(async r=>{
+  console.log("TESTE SUPABASE:",r.status,await r.text());
+})
+.catch(console.error);
 const $=id=>document.getElementById(id);
 const loginBox=$("loginBox"),forgotBox=$("forgotBox"),resetBox=$("resetBox"),dashboard=$("dashboard");
 const loginForm=$("loginForm"),loginBtn=$("loginBtn"),loginMessage=$("loginMessage"),playerList=$("playerList");
