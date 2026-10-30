@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -191,6 +190,18 @@ footer b{color:var(--red)}
 <div class="fields">
 
 <div class="field">
+<label>Primeiro nome *</label>
+<input
+  name="primeiro_nome"
+  type="text"
+  required
+  maxlength="40"
+  autocomplete="given-name"
+  placeholder="Digite seu primeiro nome"
+>
+</div>
+
+<div class="field">
 <label>Nick no Free Fire *</label>
 <input name="nick" required maxlength="30" placeholder="Seu nick">
 </div>
@@ -207,7 +218,7 @@ footer b{color:var(--red)}
 
 <div class="field">
 <label>Nível da conta * (mínimo 40)</label>
-<input name="nivel_conta" required type="number" min="1" max="999" placeholder="Ex.: 55">
+<input name="nivel_conta" required type="number" min="40" max="999" placeholder="Ex.: 55">
 </div>
 
 <div class="field">
@@ -611,9 +622,9 @@ form.addEventListener('submit', async e => {
     return;
   }
 
-  if (nivelConta < 1) {
+  if (nivelConta < 40) {
     showStep(0);
-    alert('Informe um nível de conta válido.');
+    alert('O nível mínimo da conta para entrar na RLK é 40.');
     return;
   }
 
@@ -625,6 +636,7 @@ form.addEventListener('submit', async e => {
   const get = name => fd.get(name) || null;
 
   const data = {
+    primeiro_nome: get('primeiro_nome'),
     nick: get('nick'),
     jogador_id: get('id'),
     idade: idade,
