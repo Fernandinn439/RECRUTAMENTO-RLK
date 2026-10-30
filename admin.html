@@ -208,7 +208,6 @@ function getRankScore(rank){
 
  if(found)return found[1];
 
- /* Compatibilidade com inscrições antigas */
  const legacy={
   "bronze":1,"prata":4,"ouro":7,"platina":11,
   "diamante":15,"mestre":20
@@ -348,12 +347,37 @@ $("resetForm").addEventListener("submit",async event=>{
  await client.auth.signOut();$("resetForm").reset();$("loginForm").reset();clearMessage(loginMessage);showLogin();showMessage(loginMessage,"Senha alterada com sucesso! Entre com sua nova senha.","ok")
 });
 
-/* CARREGAR INSCRIÇÕES */
+/* CARREGAR INSCRIÇÕES: COM ERRO DETALHADO */
 async function loadPlayers(){
- playerList.innerHTML='<div class="loading">Carregando inscrições...</div>';clearMessage($("loadMessage"));
- const {data,error}=await client.from("inscricoes_rlk").select("*").order("criado_em",{ascending:false});
- if(error){playerList.innerHTML="";showMessage($("loadMessage"),"Erro ao carregar inscrições. Verifique as permissões de administrador no Supabase.","error");return}
- players=data||[];updateCounts();populateRankFilter();renderPlayers()
+ playerList.innerHTML='<div class="loading">Carregando inscrições...</div>';
+ clearMessage($("loadMessage"));
+
+ const {data,error}=await client
+  .from("inscricoes_rlk")
+  .select("*")
+  .order("criado_em",{ascending:false});
+
+ if(error){
+  console.error("ERRO COMPLETO DO SUPABASE:",error);
+  playerList.innerHTML="";
+
+  showMessage(
+   $("loadMessage"),
+   "Erro: "+error.message+
+   " | Código: "+(error.code||"não informado")+
+   " | Detalhes: "+(error.details||"nenhum")+
+   " | Dica: "+(error.hint||"nenhuma"),
+   "error"
+  );
+  return;
+ }
+
+ console.log("Inscrições carregadas:",data);
+
+ players=data||[];
+ updateCounts();
+ populateRankFilter();
+ renderPlayers();
 }
 
 function updateCounts(){
